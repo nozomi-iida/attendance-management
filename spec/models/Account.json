@@ -1,0 +1,29 @@
+{
+  "title": "Account",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "handle_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "general",
+        "admin"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "email",
+    "role"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "title": "Attendance",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "isBreaked": {
+      "type": "boolean"
+    },
+    "workingTime": {
+      "type": "number"
+    },
+    "breakTime": {
+      "type": "number"
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "endedAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "id",
+    "isBreaked",
+    "workingTime",
+    "breakTime",
+    "startedAt"
+  ]
+}

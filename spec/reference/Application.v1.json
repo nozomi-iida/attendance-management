@@ -1,0 +1,454 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Application.v1",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/v1"
+    }
+  ],
+  "paths": {
+    "/attendances": {
+      "parameters": [],
+      "post": {
+        "summary": "出勤する",
+        "operationId": "post-accounts-account_id-attendances",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../models/Attendance.json"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      }
+    },
+    "/attendances/{attendance_id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "attendance_id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "patch": {
+        "summary": "勤怠を更新する",
+        "operationId": "putattendances-attendance_id",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../models/Attendance.json"
+                }
+              }
+            }
+          }
+        },
+        "description": "",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "attendance": {
+                    "type": "object",
+                    "properties": {
+                      "startedAt": {
+                        "type": "string"
+                      },
+                      "endedAt": {
+                        "type": "string"
+                      },
+                      "isBreaked": {
+                        "type": "boolean"
+                      },
+                      "breakTime": {
+                        "type": "number",
+                        "format": "float"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "",
+        "operationId": "deleteattendances-attendance_id",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      }
+    },
+    "/accounts/{account_id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "account_id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "アカウント情報・勤怠を取得する",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "../models/Account.json"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "attendances": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "../models/Attendance.json"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "attendance_csv_file": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                },
+                "examples": {
+                  "example-1": {
+                    "value": {
+                      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+                      "handle_name": "string",
+                      "email": "user@example.com",
+                      "role": "general",
+                      "attendances": [
+                        {
+                          "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+                          "isBreaked": false,
+                          "workingTime": 0,
+                          "breakTime": 0,
+                          "startedAt": "2019-08-24T14:15:22Z",
+                          "endedAt": "2019-08-24T14:15:22Z"
+                        }
+                      ],
+                      "attendance_csv_file": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-accounts-account_id",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ],
+        "description": "アカウント本人と、adminのみ取得できる"
+      },
+      "delete": {
+        "summary": "アカウントを論理削除する",
+        "operationId": "delete-accounts-account_id",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "description": "adminのみが実行できる",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "アカウントを更新する",
+        "operationId": "patch-accounts-account_id",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../models/Account.json"
+                }
+              }
+            }
+          }
+        },
+        "description": "adminのみ",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "account": {
+                    "type": "object",
+                    "properties": {
+                      "role": {
+                        "type": "string",
+                        "enum": [
+                          "general",
+                          "admin"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      }
+    },
+    "/accounts": {
+      "get": {
+        "summary": "アカウント一覧を取得する",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../models/Account.json"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-accounts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      }
+    },
+    "/accounts/invite": {
+      "post": {
+        "summary": "アカウントを招待する",
+        "operationId": "post-accounts-invite",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accounts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "../models/Account.json"
+                      }
+                    }
+                  },
+                  "required": [
+                    "accounts"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "description": "adminのみ実行することができる",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "emails": {
+                    "type": "array",
+                    "items": {}
+                  }
+                },
+                "required": [
+                  "emails"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/reset_password": {
+      "parameters": [],
+      "post": {
+        "summary": "",
+        "operationId": "post-accounts-reset_password",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "account": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "email"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      }
+    },
+    "/sign_in": {
+      "get": {
+        "summary": "Your GET endpoint",
+        "tags": [],
+        "responses": {},
+        "operationId": "get-sign_in"
+      },
+      "post": {
+        "summary": "",
+        "operationId": "post-sign_in",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "account": {
+                      "$ref": "../models/Account.json"
+                    },
+                    "token": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  },
+                  "required": [
+                    "account",
+                    "token"
+                  ]
+                },
+                "examples": {}
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "account": {
+                    "type": "object",
+                    "required": [
+                      "email",
+                      "password"
+                    ],
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      },
+                      "password": {
+                        "type": "string",
+                        "format": "password",
+                        "description": "4文字以上"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "account"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "parameters": {
+      "Authorization": {
+        "name": "Authorization",
+        "in": "header",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "required": true
+      }
+    }
+  }
+}
