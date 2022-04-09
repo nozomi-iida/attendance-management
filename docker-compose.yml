@@ -1,12 +1,16 @@
 version: "3"
+
 services:
   client:
     build:
       context: .
       dockerfile: ./docker/client/Dockerfile
+    command: sh -c "npm run dev"
     ports:
       - 3000:3000
     tty: true
+    volumes:
+      - ./client:/client
   server:
     build:
       context: .
@@ -14,6 +18,8 @@ services:
     ports:
       - 8000:8000
     tty: true
+    volumes:
+      - ./server:/server
   db:
     image: postgres:11
     ports:
@@ -21,5 +27,5 @@ services:
     environment:
       POSTGRES_USER: deploy
       POSTGRES_PASSWORD: password
-    volumes:
-      - ./db/data:/var/lib/postgresql/data
+#    volumes:
+#      - ./db/data:/var/lib/postgresql/data
