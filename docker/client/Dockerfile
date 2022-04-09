@@ -1,0 +1,6 @@
+FROM node:16.13.0
+
+ENV CLIENT_ROOT /client
+WORKDIR ${CLIENT_ROOT}
+
+COPY ./client ${CLIENT_ROOT}
