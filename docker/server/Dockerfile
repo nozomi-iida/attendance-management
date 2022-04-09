@@ -1,6 +1,0 @@
-FROM golang:1.18.0
-
-ENV SERVER_ROOT /server
-WORKDIR ${SERVER_ROOT}
-
-COPY ./server ${SERVER_ROOT}
