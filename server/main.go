@@ -2,16 +2,19 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"github.com/nozomi-iida/attendance-management/controllers"
 	"github.com/nozomi-iida/attendance-management/models"
+	"log"
 )
 
 func main() {
+	err_read := godotenv.Load()
+	if err_read != nil {
+		log.Fatalf("error: %v", err_read)
+	}
 	r := gin.Default()
-	r.GET("/sum", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	r.POST("/accounts/invite", controllers.Invite)
 	models.ConnectDatabase()
 	r.Run()
 }

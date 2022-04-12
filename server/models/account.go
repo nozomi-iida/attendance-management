@@ -12,7 +12,7 @@ const (
 type Account struct {
 	gorm.Model
 	HandleName  string       `json:"handle_name"`
-	Email       string       `json:"email" gorm:"not nul unique"`
+	Email       string       `json:"email" gorm:"not nul; unique"`
 	Role        AccountRoll  `json:"role" gorm:"not null; default:general"`
-	Attendances []Attendance `json:"attendances" gorm:""`
+	Attendances []Attendance `json:"attendances"`
 }

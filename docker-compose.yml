@@ -1,19 +1,19 @@
 version: "3"
 
 services:
-#  client:
-#    build:
-#      context: .
-#      dockerfile: docker/react/Dockerfile
-#    command: sh -c "npm run dev"
-#    ports:
-#      - 3000:3000
-#    tty: true
-#    volumes:
-#      - ./client:/client
-#    depends_on:
-#      - db
-#      - server
+  client:
+    build:
+      context: .
+      dockerfile: docker/react/Dockerfile
+    command: sh -c "npm run dev"
+    ports:
+      - 3000:3000
+    tty: true
+    volumes:
+      - ./client:/client
+    depends_on:
+      - db
+      - server
   server:
     build:
       context: .
