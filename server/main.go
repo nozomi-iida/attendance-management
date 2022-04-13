@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/nozomi-iida/attendance-management/controllers"
-	"github.com/nozomi-iida/attendance-management/models"
+	"github.com/nozomi-iida/attendance-management/app/controllers"
+	"github.com/nozomi-iida/attendance-management/app/models"
 	"log"
 )
 
