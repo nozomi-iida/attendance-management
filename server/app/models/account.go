@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -19,6 +20,10 @@ type Account struct {
 	Attendances []Attendance `json:"attendances"`
 }
 
-func (a Account) Create() {
-	DB.Create(a)
+func (a *Account) Create() (tx *gorm.DB) {
+	return DB.Create(a)
+}
+
+func (a *Account) Test(w string) {
+	fmt.Println(w)
 }
