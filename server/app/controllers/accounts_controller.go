@@ -61,7 +61,7 @@ func useIoutilReadFile(fileName string) {
 	fmt.Println(string(bytes))
 }
 
-func Invite(c *gin.Context) {
+func InviteAccount(c *gin.Context) {
 	var inviteAccount InviteAccountsInput
 	err := c.BindJSON(&inviteAccount)
 	if err != nil {
@@ -90,7 +90,7 @@ func Invite(c *gin.Context) {
 
 		accounts = append(accounts, account)
 
-		// 4. accountにメールを送信する
+		//// 4. accountにメールを送信する
 		from := mail.NewEmail("SIMULA Labs", "iida19990106@gmail.com")
 		subject := "本人確認のお願い"
 		to := mail.NewEmail("Example User", email)

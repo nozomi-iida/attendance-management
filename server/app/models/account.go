@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO: enumの書き方
 type AccountRoll = string
 
 const (
