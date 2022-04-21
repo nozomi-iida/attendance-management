@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.7.7
+	github.com/go-playground/assert/v2 v2.0.1
 	github.com/joho/godotenv v1.4.0
 	github.com/sendgrid/sendgrid-go v3.11.1+incompatible
 	gorm.io/driver/postgres v1.3.4

@@ -9,10 +9,10 @@ import (
 
 var DB *gorm.DB
 
-func ConnectDatabase() {
+func ConnectDatabase(dbname string) {
 	dsn := fmt.Sprintf("host=%s dbname=%s user=%s password=%s port=%s TimeZone=Asia/Shanghai",
 		os.Getenv("DATABASE_HOST"),
-		os.Getenv("DATABASE_NAME"),
+		dbname,
 		os.Getenv("DATABASE_USERNAME"),
 		os.Getenv("DATABASE_PASSWORD"),
 		os.Getenv("DATABASE_PORT"),
@@ -26,5 +26,6 @@ func ConnectDatabase() {
 
 	database.AutoMigrate(&Account{}, &Attendance{})
 
+	fmt.Println("db connected!")
 	DB = database
 }
