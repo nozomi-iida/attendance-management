@@ -1,9 +1,7 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/go-playground/assert/v2"
-	"github.com/nozomi-iida/attendance-management/app/models"
 	"github.com/nozomi-iida/attendance-management/config"
 	"github.com/nozomi-iida/attendance-management/spec"
 	"net/http"
@@ -27,11 +25,4 @@ func TestInviteAccount(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/accounts/invite", reqBody)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, w.Code, 200)
-
-	var account models.Account
-	models.DB.First(&account)
-	var accounts []models.Account
-	models.DB.Find(&accounts)
-	fmt.Println("accounts", accounts)
-	assert.Equal(t, "test", account.HandleName)
 }
