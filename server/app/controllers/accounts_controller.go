@@ -33,36 +33,33 @@ type InviteTokenClaims struct {
 	6. 200を返す
 */
 func InviteAccount(c *gin.Context) {
-	var inviteAccount InviteAccountsInput
-	err := c.BindJSON(&inviteAccount)
+	var inviteAccountInput InviteAccountsInput
+	err := c.BindJSON(&inviteAccountInput)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// 1. 送られたEmailsがそれぞれuniqかを調べる => 重複してたら重複を削除する
-	inviteAccount.Emails = sliceUnique(inviteAccount.Emails)
+	inviteAccountInput.Emails = sliceUnique(inviteAccountInput.Emails)
 
 	// 2. emailが既に登録されているアカウントと重複がないかを調べる => 重複してたらエラーを返す
-	for _, email := range inviteAccount.Emails {
+	for _, email := range inviteAccountInput.Emails {
 		if checkAccountExist(email) {
 			c.JSON(http.StatusBadRequest, gin.H{"message": "入力されたメールアドレスは既に登録されています"})
 			return
 		}
 	}
 
-	for _, email := range inviteAccount.Emails {
+	for _, email := range inviteAccountInput.Emails {
 		// 3. emailを含んだtokenを作成する
 		// token作成の時にsecret_keyなくても問題ないのかな？
-		claims := InviteTokenClaims{
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, InviteTokenClaims{
 			email,
 			jwt.RegisteredClaims{
-				ExpiresAt: jwt.NewNumericDate(time.Now().Add(7 + 24*time.Hour)),
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 				NotBefore: jwt.NewNumericDate(time.Now()),
 			},
-		}
-
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		})
 		tokenString, _ := token.SignedString([]byte("invite_token"))
 
 		//// 4. accountにメールを送信する

@@ -2,7 +2,9 @@ package models
 
 import (
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"strings"
 )
 
 // TODO: enumの書き方
@@ -13,16 +15,22 @@ const (
 	admin   AccountRoll = "admin"
 )
 
+// TODO: メールのバリデーションをかける
+// TODO: IDをuuidにしたい
+// FIXME: roleのデフォルト値入ってない
 type Account struct {
 	gorm.Model
-	HandleName  string       `json:"handle_name"`
+	HandleName  string       `json:"handleName"`
 	Email       string       `json:"email" gorm:"not nul; unique"`
+	Password    string       `json:"password" gorm:"not null"`
 	Role        AccountRoll  `json:"role" gorm:"not null; default:general"`
 	Attendances []Attendance `json:"attendances"`
 }
 
 func (a *Account) Create() (tx *gorm.DB) {
-	return DB.Create(a)
+	handleName := strings.Split(a.Email, "@")[0]
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(a.Password), 10)
+	return DB.Create(&Account{Email: a.Email, HandleName: handleName, Password: string(hashedPassword)})
 }
 
 func (a *Account) Test(w string) {

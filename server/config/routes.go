@@ -8,5 +8,7 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	r.POST("/accounts/invite", controllers.InviteAccount)
+	authController := controllers.NewAuthController()
+	r.POST("/sign_up", authController.SignUp)
 	return r
 }

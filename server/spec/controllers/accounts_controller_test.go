@@ -6,16 +6,14 @@ import (
 	"github.com/nozomi-iida/attendance-management/spec"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 )
 
 func TestMain(m *testing.M) {
 	spec.SetUp()
-	code := m.Run()
+	m.Run()
 	spec.CleanUpFixture()
-	os.Exit(code)
 }
 
 func TestInviteAccount(t *testing.T) {
