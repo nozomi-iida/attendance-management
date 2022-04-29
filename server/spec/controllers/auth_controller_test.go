@@ -18,10 +18,12 @@ import (
 func TestMain(m *testing.M) {
 	spec.SetUp()
 	m.Run()
-	spec.CleanUpFixture()
+	spec.CloseDb()
 }
 
 func TestSignUp(t *testing.T) {
+	defer spec.CleanUpFixture()
+
 	t.Run("success", func(t *testing.T) {
 		email := "test@gmail.com"
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, controllers.InviteTokenClaims{
@@ -37,10 +39,26 @@ func TestSignUp(t *testing.T) {
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("POST", "/sign_up", reqBody)
 		router.ServeHTTP(w, req)
-		fmt.Println(email, w.Body.String())
 		assert.Equal(t, w.Code, 201)
 		var account models.Account
 		models.DB.First(&account)
 		assert.Equal(t, email, account.Email)
+	})
+}
+
+func TestSignIn(t *testing.T) {
+	defer spec.CleanUpFixture()
+
+	account := models.Account{Email: "test@test.com", Password: "password", HandleName: "test"}
+	account.Create()
+
+	t.Run("success", func(t *testing.T) {
+		router := config.SetupRouter()
+		reqBody := strings.NewReader(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, account.Email, account.Password))
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/sign_in", reqBody)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 200)
+		assert.MatchRegex(t, w.Body.String(), account.Email)
 	})
 }
