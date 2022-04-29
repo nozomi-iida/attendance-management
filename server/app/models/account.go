@@ -29,7 +29,7 @@ type Account struct {
 
 func (a *Account) Create() (tx *gorm.DB) {
 	handleName := strings.Split(a.Email, "@")[0]
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(a.Password), 10)
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(a.Password), bcrypt.DefaultCost)
 	return DB.Create(&Account{Email: a.Email, HandleName: handleName, Password: string(hashedPassword)})
 }
 

@@ -1,7 +1,6 @@
 package spec
 
 import (
-	"fmt"
 	"github.com/joho/godotenv"
 	"github.com/nozomi-iida/attendance-management/app/models"
 	"log"
@@ -16,15 +15,18 @@ func SetUp() {
 	if err_read != nil {
 		log.Fatalf("error: %v", err_read)
 	}
-	models.ConnectDatabase(os.Getenv("DATABASE_NAME"))
+	models.ConnectDatabase("attendance_management_test")
 }
 
 // FIXME: modelが追加されるごとにコードを更新しないと行けないのが気に入らない
 func CleanUpFixture() {
 	models.DB.Exec("truncate accounts CASCADE;")
+}
+
+func CloseDb() {
 	db, err := models.DB.DB()
 	if err != nil {
-		fmt.Errorf("エラー")
+		log.Fatal(err)
 	}
 	db.Close()
 }

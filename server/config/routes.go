@@ -10,5 +10,6 @@ func SetupRouter() *gin.Engine {
 	r.POST("/accounts/invite", controllers.InviteAccount)
 	authController := controllers.NewAuthController()
 	r.POST("/sign_up", authController.SignUp)
+	r.POST("/sign_in", authController.SignIn)
 	return r
 }
