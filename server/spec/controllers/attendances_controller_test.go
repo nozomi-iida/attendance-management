@@ -6,7 +6,6 @@ import (
 	"github.com/nozomi-iida/attendance-management/spec"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
@@ -16,13 +15,11 @@ func TestMain(m *testing.M) {
 	spec.CloseDb()
 }
 
-func TestInviteAccount(t *testing.T) {
+func TestCreateAttendance(t *testing.T) {
 	defer spec.CleanUpFixture()
-
 	router := config.SetupRouter()
-	reqBody := strings.NewReader(`{"Emails": ["test@test.com"]}`)
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/accounts/invite", reqBody)
+	req, _ := http.NewRequest("POST", "/attendances", nil)
 	router.ServeHTTP(w, req)
-	assert.Equal(t, w.Code, 200)
+	assert.Equal(t, w.Code, 201)
 }

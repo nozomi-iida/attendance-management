@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"strings"
@@ -31,8 +30,4 @@ func (a *Account) Create() (tx *gorm.DB) {
 	handleName := strings.Split(a.Email, "@")[0]
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(a.Password), bcrypt.DefaultCost)
 	return DB.Create(&Account{Email: a.Email, HandleName: handleName, Password: string(hashedPassword)})
-}
-
-func (a *Account) Test(w string) {
-	fmt.Println(w)
 }
