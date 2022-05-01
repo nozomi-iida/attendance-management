@@ -1,9 +1,11 @@
 package models
 
 import (
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"strings"
+	"time"
 )
 
 // TODO: enumの書き方
@@ -18,16 +20,26 @@ const (
 // TODO: IDをuuidにしたい
 // FIXME: roleのデフォルト値入ってない
 type Account struct {
-	gorm.Model
-	HandleName  string       `json:"handleName"`
-	Email       string       `json:"email" gorm:"not nul; unique"`
-	Password    string       `json:"password" gorm:"not null"`
-	Role        AccountRoll  `json:"role" gorm:"not null; default:general"`
-	Attendances []Attendance `json:"attendances"`
+	ID          uint           `json:"id" gorm:"primarykey"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+	DeletedAt   gorm.DeletedAt `json:"deletedAt" gorm:"index"`
+	HandleName  string         `json:"handleName"`
+	Email       string         `json:"email" gorm:"not nul; unique"`
+	Password    string         `json:"password" gorm:"not null"`
+	Role        AccountRoll    `json:"role" gorm:"not null; default:general"`
+	Attendances []Attendance   `json:"attendances" gorm:"constraint:OnDelete:SET NULL"`
 }
 
-func (a *Account) Create() (tx *gorm.DB) {
-	handleName := strings.Split(a.Email, "@")[0]
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(a.Password), bcrypt.DefaultCost)
-	return DB.Create(&Account{Email: a.Email, HandleName: handleName, Password: string(hashedPassword)})
+func CreateAccount(account *Account) {
+	handleName := strings.Split(account.Email, "@")[0]
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println("GenerateFromPassword", err)
+	}
+	account = &Account{Email: account.Email, HandleName: handleName, Password: string(hashedPassword)}
+
+	if err = DB.Create(&account).Error; err != nil {
+		fmt.Println("Create", err)
+	}
 }

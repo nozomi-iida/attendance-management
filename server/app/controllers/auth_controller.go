@@ -51,14 +51,8 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 	}
 	var accounts []models.Account
 	models.DB.Find(&accounts)
-	account := models.Account{Email: inviteClaims.Email}
-	if result := account.Create(); result.Error != nil {
-		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"err": result.Error,
-		})
-		return
-	}
+	account := models.Account{Email: inviteClaims.Email, Password: signUpInput.Password}
+	models.CreateAccount(&account)
 	signUpClaims := AuthClaims{
 		account.ID,
 		jwt.RegisteredClaims{
@@ -67,7 +61,7 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 		},
 	}
 	signUpToken := jwt.NewWithClaims(jwt.SigningMethodHS256, signUpClaims)
-	tokenString, _ := signUpToken.SignedString([]byte("sign_up_token"))
+	tokenString, _ := signUpToken.SignedString([]byte("auth_token"))
 	c.JSON(http.StatusCreated, gin.H{
 		"account": account,
 		"token":   tokenString,
@@ -81,7 +75,7 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 	4. accountとtokenを返す
 */
 type SignInInput struct {
-	email    string `json:"email"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -91,12 +85,12 @@ func (ac *AuthController) SignIn(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var account models.Account
+	account := models.Account{Email: signInInput.Email}
 	// FIXME: きれいに書きたい
 	models.DB.Find(&account)
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(signInInput.Password))
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("CompareHashAndPassword", err)
 	}
 	signInClaims := AuthClaims{
 		account.ID,
@@ -106,8 +100,7 @@ func (ac *AuthController) SignIn(c *gin.Context) {
 		},
 	}
 	signInToken := jwt.NewWithClaims(jwt.SigningMethodHS256, signInClaims)
-	tokenString, _ := signInToken.SignedString([]byte("sign_in_token"))
-	fmt.Println("account", account.HandleName)
+	tokenString, _ := signInToken.SignedString([]byte("auth_token"))
 	c.JSON(http.StatusOK, gin.H{
 		"account": account,
 		"token":   tokenString,
