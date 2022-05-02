@@ -1,6 +1,7 @@
 FROM golang:1.18
 
 ENV SERVER_ROOT /server
+
 WORKDIR ${SERVER_ROOT}
 
 RUN apt-get update -qq && \
@@ -11,7 +12,10 @@ COPY ./server/go.sum ${SERVER_ROOT}
 
 RUN go mod download && \
     go get -u github.com/cosmtrek/air && \
-    go build -o /go/bin/air github.com/cosmtrek/air
+    go build -o /go/bin/air github.com/cosmtrek/air && \
+    cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+
+ENV TZ=Asia/Tokyo
 
 COPY ./server ${SERVER_ROOT}
 

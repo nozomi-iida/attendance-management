@@ -10,10 +10,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"strings"
 	"testing"
 )
 
 var account = factories.Account()
+var router = config.SetupRouter()
 
 func TestMain(m *testing.M) {
 	spec.SetUp()
@@ -27,7 +29,6 @@ func TestMain(m *testing.M) {
 }
 
 func TestIndexAttendance(t *testing.T) {
-	router := config.SetupRouter()
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/attendances", nil)
 	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
@@ -41,7 +42,6 @@ func TestIndexAttendance(t *testing.T) {
 func TestGetAttendance(t *testing.T) {
 	attendance := models.Attendance{Account: &account}
 	models.DB.Create(&attendance)
-	router := config.SetupRouter()
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/attendances/%s", strconv.FormatUint(uint64(attendance.ID), 10)), nil)
 	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
@@ -50,10 +50,32 @@ func TestGetAttendance(t *testing.T) {
 }
 
 func TestCreateAttendance(t *testing.T) {
-	router := config.SetupRouter()
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/attendances", nil)
 	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
 	router.ServeHTTP(w, req)
 	assert.Equal(t, w.Code, 201)
+}
+
+func TestUpdateAttendance(t *testing.T) {
+	attendance := models.Attendance{Account: &account}
+	workTime := 500
+	models.DB.Create(&attendance)
+	reqBody := strings.NewReader(fmt.Sprintf(`{"WorkTime": %d}`, workTime))
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("PATCH", fmt.Sprintf("/attendances/%s", strconv.FormatUint(uint64(attendance.ID), 10)), reqBody)
+	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+	router.ServeHTTP(w, req)
+	assert.Equal(t, w.Code, 200)
+	assert.MatchRegex(t, w.Body.String(), strconv.Itoa(workTime))
+}
+
+func TestDeleteAttendance(t *testing.T) {
+	attendance := models.Attendance{Account: &account}
+	models.DB.Create(&attendance)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("DELETE", fmt.Sprintf("/attendances/%s", strconv.FormatUint(uint64(attendance.ID), 10)), nil)
+	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+	router.ServeHTTP(w, req)
+	assert.Equal(t, w.Code, 204)
 }
