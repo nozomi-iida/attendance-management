@@ -4,10 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nozomi-iida/attendance-management/app/controllers"
 	"github.com/nozomi-iida/attendance-management/app/controllers/concerns"
+	"github.com/nozomi-iida/attendance-management/config/middleware"
 )
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(middleware.ErrorHandler())
 	accountController := controllers.NewAccountController()
 	authController := controllers.NewAuthController()
 	attendanceController := controllers.NewAttendanceController()

@@ -32,19 +32,30 @@ type Account struct {
 	Attendances []Attendance   `json:"attendances" gorm:"constraint:OnDelete:SET NULL"`
 }
 
-func CreateAccount(account *Account) {
+func CreateAccount(account *Account) error {
 	handleName := strings.Split(account.Email, "@")[0]
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
 	if err != nil {
-		fmt.Println("GenerateFromPassword", err)
-		return
+		return err
 	}
 	account = &Account{Email: account.Email, HandleName: handleName, Password: string(hashedPassword)}
 
 	if err = DB.Create(&account).Error; err != nil {
-		fmt.Println("Create", err)
-		return
+		return err
 	}
+
+	return nil
+}
+
+func CheckAccountExist(email string) bool {
+	var accounts []Account
+	DB.Find(&accounts)
+	for _, account := range accounts {
+		if account.Email == email {
+			return true
+		}
+	}
+	return false
 }
 
 type AuthClaims struct {
