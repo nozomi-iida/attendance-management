@@ -30,6 +30,7 @@ func SetUp() {
 // FIXME: modelが追加されるごとにコードを更新しないと行けないのが気に入らない
 func CleanUpFixture() {
 	models.DB.Exec("truncate accounts CASCADE;")
+	models.DB.Exec("truncate attendances;")
 }
 
 func CloseDb() {

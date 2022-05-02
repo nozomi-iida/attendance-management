@@ -9,6 +9,7 @@ import (
 	"github.com/nozomi-iida/attendance-management/spec/factories"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 )
 
@@ -17,20 +18,41 @@ var account = factories.Account()
 func TestMain(m *testing.M) {
 	spec.SetUp()
 	models.DB.Create(&account)
+	models.DB.Create(&models.Attendance{Account: &account})
+	models.DB.Create(&models.Attendance{Account: &account})
+	models.DB.Create(&models.Attendance{Account: &account})
 	m.Run()
+	spec.CleanUpFixture()
 	spec.CloseDb()
 }
 
 func TestIndexAttendance(t *testing.T) {
-	defer spec.CleanUpFixture()
+	router := config.SetupRouter()
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/attendances", nil)
+	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+	router.ServeHTTP(w, req)
+	var attendances []models.Attendance
+	models.DB.Model(&account).Association("Attendances").Find(&attendances)
+	assert.Equal(t, w.Code, 200)
+	assert.Equal(t, len(attendances), 3)
+}
+
+func TestGetAttendance(t *testing.T) {
+	attendance := models.Attendance{Account: &account}
+	models.DB.Create(&attendance)
+	router := config.SetupRouter()
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", fmt.Sprintf("/attendances/%s", strconv.FormatUint(uint64(attendance.ID), 10)), nil)
+	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+	router.ServeHTTP(w, req)
+	assert.Equal(t, w.Code, 200)
 }
 
 func TestCreateAttendance(t *testing.T) {
-	defer spec.CleanUpFixture()
 	router := config.SetupRouter()
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/attendances", nil)
-	// TODO: tokenをセット
 	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
 	router.ServeHTTP(w, req)
 	assert.Equal(t, w.Code, 201)

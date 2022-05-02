@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/nozomi-iida/attendance-management/app/models"
@@ -27,11 +26,15 @@ func AuthenticateAccount() gin.HandlerFunc {
 			return []byte("auth_token"), nil
 		})
 		if err != nil {
-			fmt.Println("ParseWithClaims", err)
+			c.Abort()
+			c.Error(err)
+			return
 		}
 		account := models.Account{ID: authClaims.ID}
 		models.DB.Find(&account)
 		if len(account.Email) == 0 {
+			c.Abort()
+			CurrentAccount = models.Account{}
 			c.Error(errors.Unauthorized)
 			return
 		}

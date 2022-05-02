@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/nozomi-iida/attendance-management/app/models"
 	"github.com/nozomi-iida/attendance-management/config/middleware"
@@ -26,7 +25,12 @@ func (ac *AttendanceController) IndexAttendance(c *gin.Context) {
 }
 
 func (ac *AttendanceController) GetAttendance(c *gin.Context) {
-
+	var attendance models.Attendance
+	if err := models.DB.Where("id = ?", c.Param("id")).First(&attendance).Error; err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, attendance)
 }
 
 func (ac *AttendanceController) CreateAttendance(c *gin.Context) {
@@ -36,7 +40,6 @@ func (ac *AttendanceController) CreateAttendance(c *gin.Context) {
 		c.Error(err)
 		return
 	}
-	fmt.Println(attendance.CreatedAt)
 	c.JSON(http.StatusCreated, attendance)
 }
 

@@ -26,9 +26,9 @@ func SetupRouter() *gin.Engine {
 		attendancesRoutes.Use(middleware.AuthenticateAccount())
 		attendancesRoutes.GET("", attendanceController.IndexAttendance)
 		attendancesRoutes.POST("", attendanceController.CreateAttendance)
-		attendancesRoutes.GET("/:attendanceId", attendanceController.GetAttendance)
-		attendancesRoutes.PATCH("/:attendanceId", attendanceController.UpdateAttendance)
-		attendancesRoutes.DELETE("/:attendanceId", attendanceController.DeleteAttendance)
+		attendancesRoutes.GET("/:id", attendanceController.GetAttendance)
+		attendancesRoutes.PATCH("/:id", attendanceController.UpdateAttendance)
+		attendancesRoutes.DELETE("/:id", attendanceController.DeleteAttendance)
 	}
 	return r
 }
