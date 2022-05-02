@@ -5,7 +5,16 @@ import (
 	"github.com/nozomi-iida/attendance-management/app/models"
 	"log"
 	"os"
+	"testing"
 )
+
+func TestMain(m *testing.M) {
+	SetUp()
+	defer CleanUpFixture()
+
+	m.Run()
+	CloseDb()
+}
 
 func SetUp() {
 	if err := os.Chdir("../.."); err != nil {

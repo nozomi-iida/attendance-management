@@ -3,7 +3,6 @@ package config
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/nozomi-iida/attendance-management/app/controllers"
-	"github.com/nozomi-iida/attendance-management/app/controllers/concerns"
 	"github.com/nozomi-iida/attendance-management/config/middleware"
 )
 
@@ -24,7 +23,7 @@ func SetupRouter() *gin.Engine {
 	}
 	attendancesRoutes := r.Group("/attendances")
 	{
-		attendancesRoutes.Use(concerns.AuthenticateAccount())
+		attendancesRoutes.Use(middleware.AuthenticateAccount())
 		attendancesRoutes.GET("", attendanceController.IndexAttendance)
 		attendancesRoutes.POST("", attendanceController.CreateAttendance)
 		attendancesRoutes.GET("/:attendanceId", attendanceController.GetAttendance)

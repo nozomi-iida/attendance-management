@@ -12,6 +12,7 @@ type MyError struct {
 
 var (
 	DuplicateEmailError = NewError(http.StatusUnprocessableEntity, "入力されたメールアドレスは既に登録されています")
+	Unauthorized        = NewError(http.StatusUnauthorized, "認証エラーです")
 )
 
 func (e *MyError) Error() string {

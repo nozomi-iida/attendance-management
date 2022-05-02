@@ -21,6 +21,10 @@ func TestMain(m *testing.M) {
 	spec.CloseDb()
 }
 
+func TestIndexAttendance(t *testing.T) {
+	defer spec.CleanUpFixture()
+}
+
 func TestCreateAttendance(t *testing.T) {
 	defer spec.CleanUpFixture()
 	router := config.SetupRouter()
