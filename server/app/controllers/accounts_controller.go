@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/nozomi-iida/attendance-management/app/models"
-	"github.com/nozomi-iida/attendance-management/spec"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"html/template"
@@ -51,7 +50,7 @@ func (ac *AccountController) InviteAccount(c *gin.Context) {
 
 	// 2. emailが既に登録されているアカウントと重複がないかを調べる => 重複してたらエラーを返す
 	for _, email := range inviteAccountInput.Emails {
-		if checkAccountExist(email) {
+		if models.CheckAccountExist(email) {
 			c.JSON(http.StatusBadRequest, gin.H{"message": "入力されたメールアドレスは既に登録されています"})
 			return
 		}
@@ -106,17 +105,4 @@ func sliceUnique(target []string) (unique []string) {
 	}
 
 	return unique
-}
-
-func checkAccountExist(email string) bool {
-	defer spec.CleanUpFixture()
-
-	var accounts []models.Account
-	models.DB.Find(&accounts)
-	for _, account := range accounts {
-		if account.Email == email {
-			return true
-		}
-	}
-	return false
 }

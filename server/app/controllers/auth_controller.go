@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/nozomi-iida/attendance-management/app/models"
+	"github.com/nozomi-iida/attendance-management/lib/errors"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
@@ -25,28 +26,34 @@ func NewAuthController() *AuthController {
 	6. アカウント, tokenを返す
 */
 type SignUpInput struct {
-	Token    string `json:"token"`
-	Password string `json:"password"`
+	Token    string `json:"token" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 func (ac *AuthController) SignUp(c *gin.Context) {
 	var signUpInput SignUpInput
-	err := c.BindJSON(&signUpInput)
-	// このエラーハンドリング間違えてそう
+	err := c.ShouldBindJSON(&signUpInput)
 	if err != nil {
-		log.Fatal(err)
+		c.Error(errors.BadRequest(err))
+		return
 	}
 	inviteClaims := InviteTokenClaims{}
 	_, err = jwt.ParseWithClaims(signUpInput.Token, &inviteClaims, func(token *jwt.Token) (interface{}, error) {
 		return []byte("invite_token"), nil
 	})
 	if err != nil {
-		log.Fatal(err)
+		c.Error(errors.BadRequest(err))
+		return
 	}
-	var accounts []models.Account
-	models.DB.Find(&accounts)
+	if models.CheckAccountExist(inviteClaims.Email) {
+		c.Error(errors.DuplicateEmailError)
+		return
+	}
 	account := models.Account{Email: inviteClaims.Email, Password: signUpInput.Password}
-	models.CreateAccount(&account)
+	if err = models.CreateAccount(&account); err != nil {
+		c.Error(err)
+		return
+	}
 	c.JSON(http.StatusCreated, gin.H{
 		"account": account,
 		"token":   account.Jwt(),
