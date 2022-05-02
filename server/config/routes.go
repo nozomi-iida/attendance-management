@@ -1,8 +1,6 @@
 package config
 
 import (
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/nozomi-iida/attendance-management/app/controllers"
 	"github.com/nozomi-iida/attendance-management/app/controllers/concerns"
@@ -10,8 +8,6 @@ import (
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
-	store := cookie.NewStore([]byte("secret"))
-	r.Use(sessions.Sessions("mysession", store))
 	accountController := controllers.NewAccountController()
 	authController := controllers.NewAuthController()
 	attendanceController := controllers.NewAttendanceController()
@@ -25,8 +21,8 @@ func SetupRouter() *gin.Engine {
 		r.POST("/sign_in", authController.SignIn)
 	}
 	attendancesRoutes := r.Group("/attendances")
-	attendancesRoutes.Use(concerns.AuthenticateAccount())
 	{
+		attendancesRoutes.Use(concerns.AuthenticateAccount())
 		attendancesRoutes.GET("", attendanceController.IndexAttendance)
 		attendancesRoutes.POST("", attendanceController.CreateAttendance)
 		attendancesRoutes.GET("/:attendanceId", attendanceController.GetAttendance)

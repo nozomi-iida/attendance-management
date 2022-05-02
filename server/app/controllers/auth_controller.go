@@ -8,7 +8,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
-	"time"
 )
 
 type AuthController struct{}
@@ -30,11 +29,6 @@ type SignUpInput struct {
 	Password string `json:"password"`
 }
 
-type AuthClaims struct {
-	ID uint `json:"id"`
-	jwt.RegisteredClaims
-}
-
 func (ac *AuthController) SignUp(c *gin.Context) {
 	var signUpInput SignUpInput
 	err := c.BindJSON(&signUpInput)
@@ -53,18 +47,9 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 	models.DB.Find(&accounts)
 	account := models.Account{Email: inviteClaims.Email, Password: signUpInput.Password}
 	models.CreateAccount(&account)
-	signUpClaims := AuthClaims{
-		account.ID,
-		jwt.RegisteredClaims{
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now()),
-		},
-	}
-	signUpToken := jwt.NewWithClaims(jwt.SigningMethodHS256, signUpClaims)
-	tokenString, _ := signUpToken.SignedString([]byte("auth_token"))
 	c.JSON(http.StatusCreated, gin.H{
 		"account": account,
-		"token":   tokenString,
+		"token":   account.Jwt(),
 	})
 }
 
@@ -92,17 +77,8 @@ func (ac *AuthController) SignIn(c *gin.Context) {
 	if err != nil {
 		fmt.Println("CompareHashAndPassword", err)
 	}
-	signInClaims := AuthClaims{
-		account.ID,
-		jwt.RegisteredClaims{
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now()),
-		},
-	}
-	signInToken := jwt.NewWithClaims(jwt.SigningMethodHS256, signInClaims)
-	tokenString, _ := signInToken.SignedString([]byte("auth_token"))
 	c.JSON(http.StatusOK, gin.H{
 		"account": account,
-		"token":   tokenString,
+		"token":   account.Jwt(),
 	})
 }

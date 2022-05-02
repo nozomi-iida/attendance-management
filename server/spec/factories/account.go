@@ -6,5 +6,6 @@ func Account() models.Account {
 	return models.Account{
 		HandleName: "nozomi",
 		Email:      "test@test.com",
+		Password:   "password",
 	}
 }
