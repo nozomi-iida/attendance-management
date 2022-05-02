@@ -2,9 +2,11 @@ package models
 
 import (
 	"fmt"
+	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"strings"
+	"time"
 )
 
 // TODO: enumの書き方
@@ -19,20 +21,49 @@ const (
 // TODO: IDをuuidにしたい
 // FIXME: roleのデフォルト値入ってない
 type Account struct {
-	gorm.Model
-	HandleName  string       `json:"handleName"`
-	Email       string       `json:"email" gorm:"not nul; unique"`
-	Password    string       `json:"password" gorm:"not null"`
-	Role        AccountRoll  `json:"role" gorm:"not null; default:general"`
-	Attendances []Attendance `json:"attendances"`
+	ID          uint           `json:"id" gorm:"primaryKey"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+	DeletedAt   gorm.DeletedAt `json:"deletedAt" gorm:"index"`
+	HandleName  string         `json:"handleName"`
+	Email       string         `json:"email" gorm:"not nul; unique"`
+	Password    string         `json:"password" gorm:"not null"`
+	Role        AccountRoll    `json:"role" gorm:"not null; default:general"`
+	Attendances []Attendance   `json:"attendances" gorm:"constraint:OnDelete:SET NULL"`
 }
 
-func (a *Account) Create() (tx *gorm.DB) {
-	handleName := strings.Split(a.Email, "@")[0]
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(a.Password), bcrypt.DefaultCost)
-	return DB.Create(&Account{Email: a.Email, HandleName: handleName, Password: string(hashedPassword)})
+func CreateAccount(account *Account) {
+	handleName := strings.Split(account.Email, "@")[0]
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Println("GenerateFromPassword", err)
+		return
+	}
+	account = &Account{Email: account.Email, HandleName: handleName, Password: string(hashedPassword)}
+
+	if err = DB.Create(&account).Error; err != nil {
+		fmt.Println("Create", err)
+		return
+	}
 }
 
-func (a *Account) Test(w string) {
-	fmt.Println(w)
+type AuthClaims struct {
+	ID uint `json:"id"`
+	jwt.RegisteredClaims
+}
+
+func (a *Account) Jwt() string {
+	authClaims := AuthClaims{
+		ID: a.ID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+		},
+	}
+	authToken := jwt.NewWithClaims(jwt.SigningMethodHS256, authClaims)
+	signedString, err := authToken.SignedString([]byte("auth_token"))
+	if err != nil {
+		fmt.Print("SignedString", err)
+	}
+	return signedString
 }

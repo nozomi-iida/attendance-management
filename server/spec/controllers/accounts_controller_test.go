@@ -13,10 +13,12 @@ import (
 func TestMain(m *testing.M) {
 	spec.SetUp()
 	m.Run()
-	spec.CleanUpFixture()
+	spec.CloseDb()
 }
 
 func TestInviteAccount(t *testing.T) {
+	defer spec.CleanUpFixture()
+
 	router := config.SetupRouter()
 	reqBody := strings.NewReader(`{"Emails": ["test@test.com"]}`)
 	w := httptest.NewRecorder()

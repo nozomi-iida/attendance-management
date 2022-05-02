@@ -6,11 +6,23 @@ import (
 )
 
 type Attendance struct {
-	gorm.Model
-	IsBreaked bool      `json:"is_breaked default:false not null"`
-	StartedAt time.Time `json:"started_at" gorm:"not null"`
-	EndedAt   time.Time `json:"ended_at"`
-	WorkTime  int       `json:"working_time" gorm:"not null"`
-	BreakTime int       `json:"break_time" gorm:"not null"`
-	AccountId uint      `json:"account_id"`
+	ID        uint           `json:"id" gorm:"primaryKey"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"index"`
+	IsBroke   bool           `json:"isBroke" gorm:"default:false;not null"`
+	StartedAt time.Time      `json:"startedAt" gorm:"not null"`
+	EndedAt   time.Time      `json:"endedAt"`
+	WorkTime  int            `json:"workTime" gorm:"not null"`
+	BreakTime int            `json:"breakTime" gorm:"not null"`
+	AccountId uint           `json:"accountId"`
+	Account   Account        `json:"account" gorm:"constraint:OnDelete:SET NULL"`
+}
+
+func (a *Attendance) Create() (tx *gorm.DB) {
+	return DB.Create(&Attendance{})
+}
+
+func CreateAttendance(attendance *Attendance) *gorm.DB {
+	return DB.Create(&attendance)
 }

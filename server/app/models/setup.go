@@ -9,6 +9,7 @@ import (
 
 var DB *gorm.DB
 
+// TODO: 日本時刻に
 func ConnectDatabase(dbname string) {
 	dsn := fmt.Sprintf("host=%s dbname=%s user=%s password=%s port=%s TimeZone=Asia/Shanghai",
 		os.Getenv("DATABASE_HOST"),

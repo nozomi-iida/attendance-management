@@ -50,7 +50,7 @@ func TestSignIn(t *testing.T) {
 	defer spec.CleanUpFixture()
 
 	account := models.Account{Email: "test@test.com", Password: "password", HandleName: "test"}
-	account.Create()
+	models.CreateAccount(&account)
 
 	t.Run("success", func(t *testing.T) {
 		router := config.SetupRouter()

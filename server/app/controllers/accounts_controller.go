@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/nozomi-iida/attendance-management/app/models"
+	"github.com/nozomi-iida/attendance-management/spec"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"html/template"
@@ -14,6 +15,12 @@ import (
 	"os"
 	"time"
 )
+
+type AccountController struct{}
+
+func NewAccountController() *AccountController {
+	return new(AccountController)
+}
 
 type InviteAccountsInput struct {
 	Emails []string `json:"emails" binding:"required"`
@@ -32,7 +39,7 @@ type InviteTokenClaims struct {
 	5, 3, 4をメールアドレスの数ループする
 	6. 200を返す
 */
-func InviteAccount(c *gin.Context) {
+func (ac *AccountController) InviteAccount(c *gin.Context) {
 	var inviteAccountInput InviteAccountsInput
 	err := c.BindJSON(&inviteAccountInput)
 	if err != nil {
@@ -102,6 +109,8 @@ func sliceUnique(target []string) (unique []string) {
 }
 
 func checkAccountExist(email string) bool {
+	defer spec.CleanUpFixture()
+
 	var accounts []models.Account
 	models.DB.Find(&accounts)
 	for _, account := range accounts {
