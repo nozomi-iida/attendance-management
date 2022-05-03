@@ -6,7 +6,7 @@ extends:
   - airbnb
   - airbnb-typescript
   - prettier
-parser: '@typescript-eslint/parser'
+parser: "@typescript-eslint/parser"
 parserOptions:
   ecmaFeatures:
     jsx: true
@@ -15,13 +15,11 @@ parserOptions:
   project: ./tsconfig.json
 plugins:
   - react
-  - '@typescript-eslint'
+  - "@typescript-eslint"
 rules:
   react/react-in-jsx-scope: off
   import/prefer-default-export: off
   react/button-has-type: off
   react/function-component-definition:
     - 2
-    - namedComponents:
-        arrow-function
-
+    - namedComponents: arrow-function
