@@ -140,6 +140,7 @@ const App = () => {
             自动登录
           </ProFormCheckbox>
           <a
+            href="/"
             style={{
               float: "right",
             }}
