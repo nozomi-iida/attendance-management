@@ -19,7 +19,6 @@ const (
 
 // TODO: メールのバリデーションをかける
 // TODO: IDをuuidにしたい
-// FIXME: roleのデフォルト値入ってない
 type Account struct {
 	ID          uint           `json:"id" gorm:"primaryKey"`
 	CreatedAt   time.Time      `json:"createdAt"`
