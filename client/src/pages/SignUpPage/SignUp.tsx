@@ -7,6 +7,7 @@ import Logo from "../../assets/images/logo.png";
 import { signUp } from "../../api/auth/signUp";
 import { routes } from "../../constants/routes";
 import { PersistKeys } from "../../constants/persistKeys";
+import { useCurrentAccount } from "../../hooks/useCurrentAccount/useCurrentAccount";
 
 type SignUpFormData = {
   password: string;
@@ -14,6 +15,7 @@ type SignUpFormData = {
 };
 
 export const SignUp: FC = () => {
+  const { getAccount } = useCurrentAccount();
   const [password, setPassword] = useState("");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -24,8 +26,9 @@ export const SignUp: FC = () => {
         if (token) {
           signUp({ token, password: params.password }).then((data) => {
             notification.success({ message: "新規登録に成功しました" });
-            navigate(routes.managements());
             localStorage.setItem(PersistKeys.AuthToken, data.token);
+            getAccount();
+            navigate(routes.managements());
           });
         }
       }}

@@ -7,16 +7,19 @@ import Logo from "../../assets/images/logo.png";
 import { login, LoginRequestBody } from "../../api/auth/login";
 import { routes } from "../../constants/routes";
 import { PersistKeys } from "../../constants/persistKeys";
+import { useCurrentAccount } from "../../hooks/useCurrentAccount/useCurrentAccount";
 
 export const Login: FC = () => {
+  const { getAccount } = useCurrentAccount();
   const navigate = useNavigate();
   return (
     <LoginForm<LoginRequestBody>
       onFinish={async (params) => {
         login(params).then((data) => {
           notification.success({ message: "ログインしました" });
-          navigate(routes.managements());
+          getAccount();
           localStorage.setItem(PersistKeys.AuthToken, data.token);
+          navigate(routes.managements());
         });
       }}
       logo={Logo}
@@ -24,11 +27,11 @@ export const Login: FC = () => {
       subTitle="勤怠管理"
       submitter={{
         render: (props) => (
-          // eslint-disable-next-line react/prop-types
           <Button
             key="submit"
             block
             type="primary"
+            // eslint-disable-next-line react/prop-types
             onClick={() => props.form?.submit?.()}
           >
             ログイン
