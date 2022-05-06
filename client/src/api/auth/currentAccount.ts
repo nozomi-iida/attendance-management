@@ -1,4 +1,4 @@
-import { HttpClient } from "../../lib/axios";
+import { HttpClient } from "lib/axios";
 import { Account } from "../account";
 
 export async function getCurrentAccount() {

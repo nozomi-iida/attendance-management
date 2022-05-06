@@ -24,6 +24,8 @@ rules:
   import/prefer-default-export: off
   react/button-has-type: off
   arrow-body-style: off
+  react/require-default-props: off
+  "@typescript-eslint/no-unused-vars": off
   react/function-component-definition:
     - 2
     - namedComponents: arrow-function
