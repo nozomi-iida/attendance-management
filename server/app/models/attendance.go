@@ -16,7 +16,7 @@ type Attendance struct {
 	WorkTime  int            `json:"workTime" gorm:"not null"`
 	BreakTime int            `json:"breakTime" gorm:"not null"`
 	AccountId uint           `json:"accountId"`
-	Account   *Account       `json:"account,omitempty" gorm:"constraint:OnDelete:SET NULL"`
+	Account   *Account       `json:"auth,omitempty" gorm:"constraint:OnDelete:SET NULL"`
 }
 
 func (a *Attendance) Create() (tx *gorm.DB) {

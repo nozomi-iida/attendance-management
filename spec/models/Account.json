@@ -6,7 +6,7 @@
       "type": "string",
       "format": "uuid"
     },
-    "handle_name": {
+    "handleName": {
       "type": "string"
     },
     "email": {

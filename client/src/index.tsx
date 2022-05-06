@@ -4,6 +4,8 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import "antd/dist/antd.min.css";
 import "@ant-design/pro-form/dist/form.css";
+import "@ant-design/pro-layout/dist/layout.css";
+import "@ant-design/pro-table/dist/table.css";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
