@@ -13,14 +13,18 @@ func SetupRouter() *gin.Engine {
 	authController := controllers.NewAuthController()
 	attendanceController := controllers.NewAttendanceController()
 
-	accountsRoutes := r.Group("/accounts")
-	{
-		accountsRoutes.POST("/invite", accountController.InviteAccount)
-	}
 	{
 		r.POST("/sign_up", authController.SignUp)
 		r.POST("/sign_in", authController.SignIn)
 	}
+
+	accountsRoutes := r.Group("/accounts")
+	{
+		accountsRoutes.Use(middleware.AuthenticateAccount())
+		accountsRoutes.GET("/:id", accountController.GetAccount)
+		accountsRoutes.POST("/invite", accountController.InviteAccount)
+	}
+
 	attendancesRoutes := r.Group("/attendances")
 	{
 		attendancesRoutes.Use(middleware.AuthenticateAccount())

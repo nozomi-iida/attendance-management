@@ -22,7 +22,6 @@ func TestMain(m *testing.M) {
 }
 
 func TestSignUp(t *testing.T) {
-	defer spec.CleanUpFixture()
 	email := "test@gmail.com"
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, controllers.InviteTokenClaims{
 		Email: email,
@@ -62,8 +61,6 @@ func TestSignUp(t *testing.T) {
 }
 
 func TestSignIn(t *testing.T) {
-	defer spec.CleanUpFixture()
-
 	account := models.Account{Email: "test@test.com", Password: "password", HandleName: "test"}
 	models.CreateAccount(&account)
 

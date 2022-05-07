@@ -24,7 +24,6 @@ func TestMain(m *testing.M) {
 	models.DB.Create(&models.Attendance{Account: &account})
 	models.DB.Create(&models.Attendance{Account: &account})
 	m.Run()
-	spec.CleanUpFixture()
 	spec.CloseDb()
 }
 
