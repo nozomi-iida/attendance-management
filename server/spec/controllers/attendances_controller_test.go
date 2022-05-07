@@ -52,7 +52,7 @@ func TestIndexAttendance(t *testing.T) {
 		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
 		router.ServeHTTP(w, req)
 		var attendances IndexAttendancesResponse
-		json.Unmarshal([]byte(w.Body.String()), &attendances)
+		_ = json.Unmarshal([]byte(w.Body.String()), &attendances)
 		assert.Equal(t, w.Code, 200)
 		assert.Equal(t, len(attendances.Attendances), 1)
 	})

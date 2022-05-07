@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/nozomi-iida/attendance-management/app/models"
+	"github.com/nozomi-iida/attendance-management/app/serializers"
 	"github.com/nozomi-iida/attendance-management/lib/errors"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
@@ -97,12 +98,12 @@ func (ac *AccountController) InviteAccount(c *gin.Context) {
 
 func (ac *AccountController) GetAccount(c *gin.Context) {
 	var account models.Account
-	println("GetAccount")
 	if err := models.DB.Where("id = ?", c.Param("id")).First(&account).Error; err != nil {
 		c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, account)
+	accountSerializer := serializers.AccountSerializer{Account: account}
+	c.JSON(http.StatusOK, accountSerializer.Response())
 }
 
 func sliceUnique(target []string) (unique []string) {

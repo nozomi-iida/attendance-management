@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/go-playground/assert/v2"
 	"github.com/nozomi-iida/attendance-management/app/models"
+	"github.com/nozomi-iida/attendance-management/app/serializers"
 	"github.com/nozomi-iida/attendance-management/config"
 	"github.com/nozomi-iida/attendance-management/spec"
 	"github.com/nozomi-iida/attendance-management/spec/factories"
@@ -12,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 var account = factories.Account()
@@ -46,11 +49,14 @@ func TestInviteAccount(t *testing.T) {
 }
 
 func TestGetAccount(t *testing.T) {
+	models.DB.Create(&models.Attendance{Account: &account, StartedAt: time.Now()})
 	router := config.SetupRouter()
 	w := httptest.NewRecorder()
-	fmt.Println(account.ID)
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/accounts/%s", strconv.FormatUint(uint64(account.ID), 10)), nil)
 	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
 	router.ServeHTTP(w, req)
+	var account serializers.AccountSerializer
+	_ = json.Unmarshal([]byte(w.Body.String()), &account)
 	assert.Equal(t, w.Code, 200)
+	assert.Equal(t, account.AttendanceStatus, "working")
 }
