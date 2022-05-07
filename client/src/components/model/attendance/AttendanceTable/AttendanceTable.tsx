@@ -1,17 +1,21 @@
 import { FC, useMemo } from "react";
 import ProTable, { ProColumns } from "@ant-design/pro-table";
 import { Attendance, mockAttendance } from "api/attendance";
-import { Button, notification, Typography } from "antd";
+import {Button, Space, Typography} from "antd";
 import { format } from "date-fns";
 import ja from "date-fns/locale/ja";
 import { numberToTime } from "helpers/helpers";
-import { createAttendance } from "api/attendance/createAttendance";
 import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import "moment/locale/ja";
+import { UpdateAttendanceRequestBody } from "api/attendance/updateAttendance";
 
 type AttendanceTableProps = {
   data?: Attendance[];
+  onChangeMonth: (month: Date) => void;
+  onAttendance: () => void;
+  onUpdateAttendance: (id: number, params: UpdateAttendanceRequestBody) => void;
+  onDeleteAttendance: (id: number) => void;
 };
 
 type AttendanceTableDataItem = {
@@ -24,8 +28,13 @@ const getAllDaysInMonth = (month: number, year: number = 2022) =>
     (_, i) => new Date(year, month - 1, i + 1)
   );
 
+// TODO: 間違えて退勤を押してしまった場合の導線考えてない
 export const AttendanceTable: FC<AttendanceTableProps> = ({
   data = [mockAttendance()],
+  onAttendance,
+  onChangeMonth,
+  onUpdateAttendance,
+  onDeleteAttendance,
 }) => {
   const dataSource: AttendanceTableDataItem[] = useMemo(() => {
     return getAllDaysInMonth(5).map((date) => {
@@ -39,12 +48,6 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
     });
   }, [data]);
   const { account } = useCurrentAccount();
-  const onAttendance = () => {
-    if (!account) return;
-    createAttendance(account.id).then(() => {
-      notification.success({ message: "出勤しました" });
-    });
-  };
 
   const columns: ProColumns<AttendanceTableDataItem>[] = [
     {
@@ -101,7 +104,11 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
     {
       title: "アクション",
       search: false,
-      render: () => <Button type="primary">編集</Button>,
+      render: (_, entity) => entity.startedAt &&
+        <Space>
+          <Button type="primary">編集</Button>
+          <Button type="primary" danger>削除</Button>
+        </Space>
     },
   ];
   return (
@@ -112,10 +119,15 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
       search={{
         labelWidth: "auto",
         // eslint-disable-next-line react/no-unstable-nested-components
-        optionRender: (search, formPrps, dom) => [
-          <Button type="primary" onClick={onAttendance}>
-            出勤
-          </Button>,
+        optionRender: () => [
+          !account?.currentAttendance && <Button type="primary">出勤</Button>,
+          account?.currentAttendance &&
+            (account?.currentAttendance.breakTime ? (
+              <Button>休憩</Button>
+            ) : (
+              <Button>休憩終了</Button>
+            )),
+          account?.currentAttendance && <Button danger>退勤</Button>,
         ],
       }}
       dataSource={dataSource}

@@ -15,21 +15,15 @@ const (
 
 type AccountSerializer struct {
 	models.Account
-	AttendanceStatus AttendanceStatus `json:"attendanceStatus"`
+	CurrentAttendance models.Attendance `json:"currentAttendance"`
 }
 
 func (as AccountSerializer) Response() AccountSerializer {
 	var attendance models.Attendance
 	now := time.Now()
 	models.DB.Where("account_id = ?", as.ID).Where("started_at BETWEEN ? AND ?", bod(now), truncate(now)).First(&attendance)
+	as.CurrentAttendance = attendance
 
-	if !attendance.EndedAt.IsZero() {
-		as.AttendanceStatus = leavingWork
-	} else if attendance.IsBroke {
-		as.AttendanceStatus = breaking
-	} else if !attendance.StartedAt.IsZero() {
-		as.AttendanceStatus = working
-	}
 	return as
 }
 

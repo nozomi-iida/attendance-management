@@ -34,4 +34,4 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_MULTIPLE_DATABASES: attendance_management_development,attendance_management_test
     ports:
-      - 54432:5432
+      - 5432:5432

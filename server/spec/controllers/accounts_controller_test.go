@@ -58,5 +58,5 @@ func TestGetAccount(t *testing.T) {
 	var account serializers.AccountSerializer
 	_ = json.Unmarshal([]byte(w.Body.String()), &account)
 	assert.Equal(t, w.Code, 200)
-	assert.Equal(t, account.AttendanceStatus, "working")
+	assert.Equal(t, account.CurrentAttendance.IsBreak, false)
 }

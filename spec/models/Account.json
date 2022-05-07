@@ -19,6 +19,14 @@
         "general",
         "admin"
       ]
+    },
+    "attendanceStatus": {
+      "type": "string",
+      "enum": [
+        "working",
+        "breaking",
+        "leavingWork"
+      ]
     }
   },
   "required": [

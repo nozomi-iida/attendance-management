@@ -4,11 +4,11 @@ import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { rest } from "msw";
 import { createMemoryHistory } from "history";
+import { ApiHost } from "constants/urls";
+import { mockAccount } from "api/account";
+import { routes } from "constants/routes";
+import { PersistKeys } from "constants/persistKeys";
 import { Login } from "./Login";
-import { ApiHost } from "../../constants/urls";
-import { mockAccount } from "../../api/account";
-import { routes } from "../../constants/routes";
-import { PersistKeys } from "../../constants/persistKeys";
 
 it("should match snapshot", () => {
   const { container } = render(<Login />, { wrapper: BrowserRouter });

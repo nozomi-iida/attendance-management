@@ -54,7 +54,8 @@
               "type": "number"
             },
             "in": "query",
-            "name": "month"
+            "name": "month",
+            "required": true
           }
         ]
       },
