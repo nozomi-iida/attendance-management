@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/go-playground/assert/v2"
 	"github.com/nozomi-iida/attendance-management/app/models"
@@ -12,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 var account = factories.Account()
@@ -27,15 +29,33 @@ func TestMain(m *testing.M) {
 	spec.CloseDb()
 }
 
+type IndexAttendancesResponse struct {
+	Attendances []models.Attendance `json:"attendances"`
+}
+
 func TestIndexAttendance(t *testing.T) {
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/attendances", nil)
-	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
-	router.ServeHTTP(w, req)
-	var attendances []models.Attendance
-	models.DB.Model(&account).Association("Attendances").Find(&attendances)
-	assert.Equal(t, w.Code, 200)
-	assert.Equal(t, len(attendances), 3)
+	t.Run("badRequest for not select month", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", "/attendances", nil)
+		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 400)
+	})
+	t.Run("success", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		testTime := time.Date(2020, 4, 15, 16, 48, 32, 12345, time.Local)
+		models.DB.Create(&models.Attendance{Account: &account, StartedAt: testTime})
+		req, _ := http.NewRequest("GET", "/attendances", nil)
+		query := req.URL.Query()
+		query.Add("month", testTime.Format("2006-01-02 15:04:05"))
+		req.URL.RawQuery = query.Encode()
+		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+		router.ServeHTTP(w, req)
+		var attendances IndexAttendancesResponse
+		json.Unmarshal([]byte(w.Body.String()), &attendances)
+		assert.Equal(t, w.Code, 200)
+		assert.Equal(t, len(attendances.Attendances), 1)
+	})
 }
 
 func TestGetAttendance(t *testing.T) {
