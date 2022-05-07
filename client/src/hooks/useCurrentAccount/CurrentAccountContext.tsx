@@ -1,6 +1,7 @@
-import { createContext, FC, ReactNode, useEffect, useState } from "react";
-import { Account, mockAccount } from "api/account";
-import { getCurrentAccount } from "api/auth/currentAccount";
+import {createContext, FC, ReactNode, useEffect, useState} from "react";
+import {Account, mockAccount} from "api/account";
+import {PersistKeys} from "constants/persistKeys";
+import {getAccount} from "api/account/getAccount";
 
 type CurrentAccountContext = {
   account?: Account;
@@ -22,9 +23,17 @@ export const CurrentAccountProvider: FC<CurrentAccountProviderProps> = ({
   // TODO
   const [account, setAccount] = useState<Account>(mockAccount);
   useEffect(() => {
-    getCurrentAccount().then((data) => {
-      setAccount(data);
-    });
+    const token = localStorage.getItem(PersistKeys.AuthToken)
+    if(!token) return;
+
+    const [, p] = token.split(".");
+    const {id} = JSON.parse(window.atob(p));
+
+    if (id) {
+      getAccount(id).then((data) => {
+        setAccount(data);
+      });
+    }
   }, []);
 
   return (
