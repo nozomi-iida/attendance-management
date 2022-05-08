@@ -55,8 +55,8 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{
-		"account": account,
-		"token":   account.Jwt(),
+		"auth":  account,
+		"token": account.Jwt(),
 	})
 }
 
@@ -77,15 +77,15 @@ func (ac *AuthController) SignIn(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	account := models.Account{Email: signInInput.Email}
+	var account models.Account
+	models.DB.Where("email = ?", signInInput.Email).First(&account)
 	// FIXME: きれいに書きたい
-	models.DB.Find(&account)
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(signInInput.Password))
 	if err != nil {
 		fmt.Println("CompareHashAndPassword", err)
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"account": account,
-		"token":   account.Jwt(),
+		"auth":  account,
+		"token": account.Jwt(),
 	})
 }

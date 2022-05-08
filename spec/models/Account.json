@@ -6,7 +6,7 @@
       "type": "string",
       "format": "uuid"
     },
-    "handle_name": {
+    "handleName": {
       "type": "string"
     },
     "email": {
@@ -18,6 +18,14 @@
       "enum": [
         "general",
         "admin"
+      ]
+    },
+    "attendanceStatus": {
+      "type": "string",
+      "enum": [
+        "working",
+        "breaking",
+        "leavingWork"
       ]
     }
   },

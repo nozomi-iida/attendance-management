@@ -9,11 +9,11 @@ import (
 )
 
 func main() {
-	err_read := godotenv.Load()
-	if err_read != nil {
-		log.Fatalf("error: %v", err_read)
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("error: %v", err)
 	}
 	models.ConnectDatabase(os.Getenv("DATABASE_NAME"))
 	r := config.SetupRouter()
-	r.Run()
+	r.Run(":8080")
 }

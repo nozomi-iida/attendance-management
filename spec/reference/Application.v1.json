@@ -1,5 +1,5 @@
 {
-  "openapi": "3.1.0",
+  "openapi": "3.0.0",
   "info": {
     "title": "Application.v1",
     "version": "1.0"
@@ -10,14 +10,61 @@
     }
   ],
   "paths": {
-    "/attendances": {
-      "parameters": [],
+    "/accounts/{account_id}/attendances": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "account_id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "アカウントの勤怠一覧を取得する",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attendances": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "../models/Attendance.json"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-accounts-account_id-attendances",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "month",
+            "required": true
+          }
+        ]
+      },
       "post": {
         "summary": "出勤する",
         "operationId": "post-accounts-account_id-attendances",
         "responses": {
-          "201": {
-            "description": "Created",
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
@@ -111,6 +158,30 @@
         ]
       }
     },
+    "/accounts": {
+      "get": {
+        "summary": "アカウント一覧を取得する",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../models/Account.json"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-accounts",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      }
+    },
     "/accounts/{account_id}": {
       "parameters": [
         {
@@ -143,40 +214,15 @@
                           "items": {
                             "$ref": "../models/Attendance.json"
                           }
-                        }
-                      }
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "attendance_csv_file": {
+                        },
+                        "attendanceCsvFile": {
                           "type": "string"
                         }
                       }
                     }
                   ]
                 },
-                "examples": {
-                  "example-1": {
-                    "value": {
-                      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-                      "handle_name": "string",
-                      "email": "user@example.com",
-                      "role": "general",
-                      "attendances": [
-                        {
-                          "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-                          "isBreaked": false,
-                          "workingTime": 0,
-                          "breakTime": 0,
-                          "startedAt": "2019-08-24T14:15:22Z",
-                          "endedAt": "2019-08-24T14:15:22Z"
-                        }
-                      ],
-                      "attendance_csv_file": "string"
-                    }
-                  }
-                }
+                "examples": {}
               }
             }
           }
@@ -206,54 +252,16 @@
       },
       "patch": {
         "summary": "アカウントを更新する",
-        "operationId": "patch-accounts-account_id",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "../models/Account.json"
-                }
-              }
-            }
-          }
-        },
+        "operationId": "updateAccount",
         "description": "adminのみ",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "account": {
-                    "type": "object",
-                    "properties": {
-                      "role": {
-                        "type": "string",
-                        "enum": [
-                          "general",
-                          "admin"
-                        ]
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
         "parameters": [
           {
             "$ref": "#/components/parameters/Authorization"
           }
-        ]
-      }
-    },
-    "/accounts": {
-      "get": {
-        "summary": "アカウント一覧を取得する",
-        "tags": [],
+        ],
+        "tags": [
+          "ApplicatoinsAccount"
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -266,12 +274,9 @@
             }
           }
         },
-        "operationId": "get-accounts",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Authorization"
-          }
-        ]
+        "requestBody": {
+          "$ref": "#/components/requestBodies/UpdateAccountInput"
+        }
       }
     },
     "/accounts/invite": {
@@ -367,12 +372,6 @@
       }
     },
     "/sign_in": {
-      "get": {
-        "summary": "Your GET endpoint",
-        "tags": [],
-        "responses": {},
-        "operationId": "get-sign_in"
-      },
       "post": {
         "summary": "",
         "operationId": "post-sign_in",
@@ -435,6 +434,43 @@
           }
         }
       }
+    },
+    "/sign_up": {
+      "post": {
+        "summary": "",
+        "operationId": "post-sign_up",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "../models/Account.json"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "token": {
+                    "type": "string"
+                  }
+                }
+              },
+              "examples": {}
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -448,6 +484,44 @@
           "format": "uuid"
         },
         "required": true
+      }
+    },
+    "requestBodies": {
+      "UpdateAccountInput": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "account": {
+                  "type": "object",
+                  "properties": {
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "general",
+                        "admin"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": ""
+      }
+    },
+    "responses": {
+      "UpdateAccountResponse": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "../models/Account.json"
+            }
+          }
+        }
       }
     }
   }

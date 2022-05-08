@@ -38,5 +38,6 @@ func CloseDb() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	CleanUpFixture()
 	db.Close()
 }

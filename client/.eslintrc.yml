@@ -2,6 +2,8 @@ env:
   browser: true
   es2021: true
 extends:
+  - react-app
+  - react-app/jest
   - plugin:react/recommended
   - airbnb
   - airbnb-typescript
@@ -16,10 +18,17 @@ parserOptions:
 plugins:
   - react
   - "@typescript-eslint"
+  - testing-library
 rules:
   react/react-in-jsx-scope: off
   import/prefer-default-export: off
   react/button-has-type: off
+  arrow-body-style: off
+  react/require-default-props: off
+  "@typescript-eslint/no-unused-vars": off
+  testing-library/no-render-in-setup:
+   - error
+   - allowTestingFrameworkSetupHook: beforeEach
   react/function-component-definition:
-    - 2
+    - error
     - namedComponents: arrow-function

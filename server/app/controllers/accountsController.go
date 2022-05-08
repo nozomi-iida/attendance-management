@@ -6,6 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/nozomi-iida/attendance-management/app/models"
+	"github.com/nozomi-iida/attendance-management/app/serializers"
+	"github.com/nozomi-iida/attendance-management/lib/errors"
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"html/template"
@@ -51,7 +53,7 @@ func (ac *AccountController) InviteAccount(c *gin.Context) {
 	// 2. emailが既に登録されているアカウントと重複がないかを調べる => 重複してたらエラーを返す
 	for _, email := range inviteAccountInput.Emails {
 		if models.CheckAccountExist(email) {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "入力されたメールアドレスは既に登録されています"})
+			c.Error(errors.DuplicateEmailError)
 			return
 		}
 	}
@@ -92,6 +94,16 @@ func (ac *AccountController) InviteAccount(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{})
+}
+
+func (ac *AccountController) GetAccount(c *gin.Context) {
+	var account models.Account
+	if err := models.DB.Where("id = ?", c.Param("accountId")).First(&account).Error; err != nil {
+		c.Error(err)
+		return
+	}
+	accountSerializer := serializers.AccountSerializer{Account: account}
+	c.JSON(http.StatusOK, accountSerializer.Response())
 }
 
 func sliceUnique(target []string) (unique []string) {

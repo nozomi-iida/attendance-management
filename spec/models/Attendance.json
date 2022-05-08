@@ -6,7 +6,7 @@
       "type": "string",
       "format": "uuid"
     },
-    "isBreaked": {
+    "isBreak": {
       "type": "boolean"
     },
     "workingTime": {
@@ -20,16 +20,13 @@
       "format": "date-time"
     },
     "endedAt": {
-      "type": [
-        "string",
-        "null"
-      ],
+      "type": "string",
       "format": "date-time"
     }
   },
   "required": [
     "id",
-    "isBreaked",
+    "isBreak",
     "workingTime",
     "breakTime",
     "startedAt"

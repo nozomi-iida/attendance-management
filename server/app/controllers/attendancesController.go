@@ -6,6 +6,7 @@ import (
 	"github.com/nozomi-iida/attendance-management/config/middleware"
 	"github.com/nozomi-iida/attendance-management/lib/errors"
 	"net/http"
+	"time"
 )
 
 type AttendanceController struct{}
@@ -17,11 +18,22 @@ func NewAttendanceController() *AttendanceController {
 func (ac *AttendanceController) IndexAttendance(c *gin.Context) {
 	account := middleware.CurrentAccount
 	var attendances []models.Attendance
-	err := models.DB.Model(&account).Association("Attendances").Find(&attendances)
-	if err != nil {
+	search := models.DB.Where("")
+	month := c.Query("month")
+	if month == "" {
+		c.Error(errors.NewError(http.StatusBadRequest, "月を指定してください"))
+		return
+	}
+
+	monthTime := stringToTime(month)
+	firstDay := time.Date(monthTime.Year(), monthTime.Month(), 1, 0, 0, 0, 0, time.Local)
+	lastDay := firstDay.AddDate(0, 1, 0).Add(time.Nanosecond * -1)
+	search.Where("started_at BETWEEN ? AND ?", firstDay, lastDay).Model(&account)
+	if err := search.Model(&account).Association("Attendances").Find(&attendances); err != nil {
 		c.Error(err)
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"attendances": attendances})
 }
 
@@ -36,7 +48,7 @@ func (ac *AttendanceController) GetAttendance(c *gin.Context) {
 
 func (ac *AttendanceController) CreateAttendance(c *gin.Context) {
 	account := middleware.CurrentAccount
-	attendance := models.Attendance{Account: &account}
+	attendance := models.Attendance{Account: &account, StartedAt: time.Now()}
 	if err := models.DB.Create(&attendance).Error; err != nil {
 		c.Error(err)
 		return
@@ -63,4 +75,12 @@ func (ac *AttendanceController) DeleteAttendance(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusNoContent, gin.H{})
+}
+
+func stringToTime(str string) time.Time {
+	t, err := time.ParseInLocation("2006-01", str, time.Local)
+	if err != nil {
+		println("err", err.Error())
+	}
+	return t
 }
