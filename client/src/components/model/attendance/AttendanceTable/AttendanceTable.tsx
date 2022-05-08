@@ -1,18 +1,25 @@
-import {FC, useMemo} from "react";
-import ProTable, {ProColumns} from "@ant-design/pro-table";
-import {Attendance, mockAttendance} from "api/attendance";
-import {Button, Space, Typography} from "antd";
-import {format, parseISO} from "date-fns";
-import ja from "date-fns/locale/ja";
-import {numberToTime} from "helpers/helpers";
-import {useCurrentAccount} from "hooks/useCurrentAccount/useCurrentAccount";
-// eslint-disable-next-line import/no-extraneous-dependencies
-import "moment/locale/ja";
-import {UpdateAttendanceRequestBody} from "api/attendance/updateAttendance";
+import { FC, useMemo } from "react";
+import { Attendance, mockAttendance } from "api/attendance";
+import {
+  Button,
+  DatePicker,
+  Popconfirm,
+  Row,
+  Space,
+  Table,
+  Typography,
+} from "antd";
+import { numberToTime } from "helpers/helpers";
+import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
+import { UpdateAttendanceRequestBody } from "api/attendance/updateAttendance";
+import { ColumnProps } from "antd/es/table";
+import moment, {Moment} from "moment";
+import styles from "./AttendanceTable.module.scss";
 
 type AttendanceTableProps = {
   data?: Attendance[];
-  onChangeMonth: (month: Date) => void;
+  selectedMonth: Moment;
+  onChangeMonth: (month: Moment) => void;
   onAttendance: () => void;
   onUpdateAttendance: (id: number, params: UpdateAttendanceRequestBody) => void;
   onDeleteAttendance: (id: number) => void;
@@ -22,15 +29,19 @@ type AttendanceTableDataItem = {
   date: Date;
 } & Partial<Attendance>;
 
-const getAllDaysInMonth = (month: number, year: number = 2022) =>
-  Array.from(
+const getAllDaysInMonth = (date: Moment) => {
+  const year = date.toDate().getFullYear()
+  const month = date.toDate().getMonth() + 1
+  return   Array.from(
     { length: new Date(year, month, 0).getDate() },
     (_, i) => new Date(year, month - 1, i + 1)
   );
+}
 
 // TODO: 間違えて退勤を押してしまった場合の導線考えてない
 export const AttendanceTable: FC<AttendanceTableProps> = ({
   data = [mockAttendance()],
+  selectedMonth,
   onAttendance,
   onChangeMonth,
   onUpdateAttendance,
@@ -38,57 +49,50 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
 }) => {
   const { account } = useCurrentAccount();
   const dataSource: AttendanceTableDataItem[] = useMemo(() => {
-    return getAllDaysInMonth(5).map((date) => {
-      const attendance = data?.find(
-        (el) => {
-          return parseISO(el.startedAt).getDate() === date.getDate()
-        }
-      );
+    return getAllDaysInMonth(selectedMonth).map((date) => {
+      const attendance = data?.find((el) => {
+        return moment(el.startedAt).toDate().getDate() === date.getDate();
+      });
       return {
         date,
         ...attendance,
       };
     });
-  }, [data]);
+  }, [data, selectedMonth]);
 
-  const columns: ProColumns<AttendanceTableDataItem>[] = [
+  const columns: ColumnProps<AttendanceTableDataItem>[] = [
     {
       title: "日付",
       dataIndex: "date",
-      valueType: "dateMonth",
-      initialValue: new Date(),
       render: (_, entity) => (
         <Typography.Text>
-          {format(entity.date, "MM/dd(E)", { locale: ja })}
+          {moment(entity.date).format("MM/D(dd)")}
         </Typography.Text>
       ),
     },
     {
       title: "出勤時刻",
       dataIndex: "startedAt",
-      search: false,
       render: (_, entity) =>
         entity.startedAt && (
           <Typography.Text>
-            {format(new Date(entity.startedAt), "H:m")}
+            {moment(entity.startedAt).format("H:m")}
           </Typography.Text>
         ),
     },
     {
       title: "退勤時刻",
       dataIndex: "endedAt",
-      search: false,
       render: (_, entity) =>
         entity.endedAt && (
           <Typography.Text>
-            {format(new Date(entity.endedAt), "H:m")}
+            {moment(entity.endedAt).format("H:m")}
           </Typography.Text>
         ),
     },
     {
       title: "総労働時間",
       dataIndex: "workingTime",
-      search: false,
       render: (_, entity) =>
         entity.workingTime && (
           <Typography.Text>{numberToTime(entity.workingTime)}</Typography.Text>
@@ -97,7 +101,6 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
     {
       title: "休憩時間",
       dataIndex: "breakTime",
-      search: false,
       render: (_, entity) =>
         entity.breakTime && (
           <Typography.Text>{numberToTime(entity.breakTime)}</Typography.Text>
@@ -105,35 +108,56 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
     },
     {
       title: "アクション",
-      search: false,
-      render: (_, entity) => entity.startedAt &&
-        <Space>
-          <Button type="primary">編集</Button>
-          <Button type="primary" danger>削除</Button>
-        </Space>
+      render: (_, entity) =>
+        entity.id && (
+          <Space>
+            <Button type="primary">編集</Button>
+            <Popconfirm
+              title="本当に削除しますか?"
+              onConfirm={() => onDeleteAttendance(entity.id ?? 0)}
+            >
+              <Button type="primary" danger>
+                削除
+              </Button>
+            </Popconfirm>
+          </Space>
+        ),
     },
   ];
   return (
-    <ProTable
-      rowKey="id"
-      pagination={false}
-      toolBarRender={false}
-      search={{
-        labelWidth: "auto",
-        // eslint-disable-next-line react/no-unstable-nested-components
-        optionRender: () => [
-          !account?.currentAttendance && <Button type="primary" onClick={onAttendance}>出勤</Button>,
-          account?.currentAttendance &&
+    <div className={styles.flexBox}>
+      <Row justify="space-between" className={styles.searchBox}>
+        <DatePicker
+          size="large"
+          defaultValue={moment(selectedMonth)}
+          picker="month"
+          onChange={(date) => date && onChangeMonth(date)}
+        />
+        <Space>
+          {!account?.currentAttendance && (
+            <Button size="large" type="primary" onClick={onAttendance}>
+              出勤
+            </Button>
+          )}
+          {account?.currentAttendance &&
             (account?.currentAttendance.breakTime ? (
-              <Button>休憩</Button>
+              <Button size="large">休憩終了</Button>
             ) : (
-              <Button>休憩終了</Button>
-            )),
-          account?.currentAttendance && <Button danger>退勤</Button>,
-        ],
-      }}
-      dataSource={dataSource}
-      columns={columns}
-    />
+              <Button size="large">休憩</Button>
+            ))}
+          {account?.currentAttendance && (
+            <Button size="large" danger>
+              退勤
+            </Button>
+          )}
+        </Space>
+      </Row>
+      <Table
+        rowKey="date"
+        pagination={false}
+        dataSource={dataSource}
+        columns={columns}
+      />
+    </div>
   );
 };

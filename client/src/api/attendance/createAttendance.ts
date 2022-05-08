@@ -4,9 +4,9 @@ import { Attendance } from ".";
 
 export async function createAttendance({
   urlParams,
-}: MutationVariables<{ id: number }, undefined>) {
+}: MutationVariables<{ accountId: number }, undefined>) {
   const res = await HttpClient.post<Attendance>(
-    `/attendances`
+    `accounts/${urlParams.accountId}/attendances`
   );
   return res.data;
 }

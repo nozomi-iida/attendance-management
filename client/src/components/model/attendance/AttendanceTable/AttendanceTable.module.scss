@@ -1,0 +1,12 @@
+@import "src/assets/styles/module";
+
+.flexBox {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.searchBox {
+  background-color: $white;
+  padding: $space-sm;
+}

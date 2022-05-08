@@ -9,12 +9,12 @@ import (
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
-	r.Use(cors.New(cors.Config{
-		AllowAllOrigins: true,
-		AllowHeaders: []string{
-			"Authorization",
-		},
-	}))
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowHeaders = []string{
+		"Authorization",
+	}
+	r.Use(cors.New(config))
 	r.Use(middleware.ErrorHandler())
 	accountController := controllers.NewAccountController()
 	authController := controllers.NewAuthController()
@@ -27,11 +27,11 @@ func SetupRouter() *gin.Engine {
 	accountsRoutes := r.Group("/accounts")
 	{
 		accountsRoutes.Use(middleware.AuthenticateAccount())
-		accountsRoutes.GET("/:id", accountController.GetAccount)
+		accountsRoutes.GET("/:accountId", accountController.GetAccount)
 		accountsRoutes.POST("/invite", accountController.InviteAccount)
 	}
 
-	attendancesRoutes := r.Group("/attendances")
+	attendancesRoutes := r.Group("/accounts/:accountId/attendances")
 	{
 		attendancesRoutes.Use(middleware.AuthenticateAccount())
 		attendancesRoutes.GET("", attendanceController.IndexAttendance)

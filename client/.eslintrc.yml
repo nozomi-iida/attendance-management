@@ -26,6 +26,9 @@ rules:
   arrow-body-style: off
   react/require-default-props: off
   "@typescript-eslint/no-unused-vars": off
+  testing-library/no-render-in-setup:
+   - error
+   - allowTestingFrameworkSetupHook: beforeEach
   react/function-component-definition:
-    - 2
+    - error
     - namedComponents: arrow-function

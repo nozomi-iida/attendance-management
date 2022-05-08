@@ -6,6 +6,7 @@ import { useManagement } from "pages/ManagementPage/useManagement";
 export const Management: FC = () => {
   const {
     attendances,
+    selectedMonth,
     onChangeMonth,
     onAttendance,
     onUpdateAttendance,
@@ -14,6 +15,7 @@ export const Management: FC = () => {
   return (
     <PageContainer>
       <AttendanceTable
+        selectedMonth={selectedMonth}
         onAttendance={onAttendance}
         onDeleteAttendance={onDeleteAttendance}
         onUpdateAttendance={onUpdateAttendance}

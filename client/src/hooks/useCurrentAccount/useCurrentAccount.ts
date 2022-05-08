@@ -1,10 +1,10 @@
-import { useContext } from "react";
-import { PersistKeys } from "constants/persistKeys";
-import { getAccount } from "api/account/getAccount";
-import { currentAccountContext } from "./CurrentAccountContext";
+import {useContext} from "react";
+import {PersistKeys} from "constants/persistKeys";
+import {getAccount} from "api/account/getAccount";
+import {CurrentAccountContext} from "./CurrentAccountContext";
 
 export const useCurrentAccount = () => {
-  const { account, setAccount } = useContext(currentAccountContext);
+  const { account, setAccount } = useContext(CurrentAccountContext);
 
   const getCurrentAccount = () => {
     const token = localStorage.getItem(PersistKeys.AuthToken);

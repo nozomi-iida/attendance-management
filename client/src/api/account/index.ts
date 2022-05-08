@@ -13,7 +13,7 @@ export type Account = {
   currentAttendance: Attendance | null;
 };
 
-export const mockAccount = (modification?: Account): Account => {
+export const mockAccount = (modification?: Partial<Account>): Account => {
   return {
     id: 1,
     handleName: "test",

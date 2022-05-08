@@ -3,11 +3,11 @@ import { LoginForm, ProFormText } from "@ant-design/pro-form";
 import { Button, notification } from "antd";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { login, LoginRequestBody } from "api/auth/login";
+import { routes } from "constants/routes";
+import { PersistKeys } from "constants/persistKeys";
+import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
 import Logo from "../../assets/images/logo.png";
-import { login, LoginRequestBody } from "../../api/auth/login";
-import { routes } from "../../constants/routes";
-import { PersistKeys } from "../../constants/persistKeys";
-import { useCurrentAccount } from "../../hooks/useCurrentAccount/useCurrentAccount";
 
 export const Login: FC = () => {
   const { getAccount } = useCurrentAccount();
@@ -17,9 +17,9 @@ export const Login: FC = () => {
       onFinish={async (params) => {
         login(params).then((data) => {
           notification.success({ message: "ログインしました" });
-          getAccount();
           localStorage.setItem(PersistKeys.AuthToken, data.token);
           navigate(routes.managements());
+          // getAccount();
         });
       }}
       logo={Logo}

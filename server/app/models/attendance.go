@@ -12,7 +12,7 @@ type Attendance struct {
 	DeletedAt gorm.DeletedAt `json:"deletedAt,omitempty" gorm:"index"`
 	IsBreak   bool           `json:"IsBreak" gorm:"default:false;not null"`
 	StartedAt time.Time      `json:"startedAt" gorm:"not null"`
-	EndedAt   time.Time      `json:"endedAt"`
+	EndedAt   *time.Time     `json:"endedAt"`
 	WorkTime  int            `json:"workTime" gorm:"not null"`
 	BreakTime int            `json:"breakTime" gorm:"not null"`
 	AccountId uint           `json:"accountId"`

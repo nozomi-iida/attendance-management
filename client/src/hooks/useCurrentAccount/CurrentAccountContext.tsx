@@ -3,7 +3,7 @@ import { Account, mockAccount } from "api/account";
 import { PersistKeys } from "constants/persistKeys";
 import { getAccount } from "api/account/getAccount";
 
-type CurrentAccountContext = {
+type CurrentAccountContextUseCase = {
   account?: Account;
   setAccount: (account: Account) => void;
 };
@@ -12,7 +12,7 @@ type CurrentAccountProviderProps = {
   children: ReactNode;
 };
 
-export const currentAccountContext = createContext<CurrentAccountContext>({
+export const CurrentAccountContext = createContext<CurrentAccountContextUseCase>({
   account: undefined,
   setAccount: () => undefined,
 });
@@ -37,8 +37,8 @@ export const CurrentAccountProvider: FC<CurrentAccountProviderProps> = ({
 
   return (
     // eslint-disable-next-line react/jsx-no-constructed-context-values
-    <currentAccountContext.Provider value={{ account, setAccount }}>
+    <CurrentAccountContext.Provider value={{ account, setAccount }}>
       {children}
-    </currentAccountContext.Provider>
+    </CurrentAccountContext.Provider>
   );
 };

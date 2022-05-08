@@ -98,7 +98,7 @@ func (ac *AccountController) InviteAccount(c *gin.Context) {
 
 func (ac *AccountController) GetAccount(c *gin.Context) {
 	var account models.Account
-	if err := models.DB.Where("id = ?", c.Param("id")).First(&account).Error; err != nil {
+	if err := models.DB.Where("id = ?", c.Param("accountId")).First(&account).Error; err != nil {
 		c.Error(err)
 		return
 	}

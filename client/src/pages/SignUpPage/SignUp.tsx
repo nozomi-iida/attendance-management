@@ -3,11 +3,11 @@ import { Button, notification } from "antd";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { LockOutlined } from "@ant-design/icons";
 import { LoginForm, ProFormText } from "@ant-design/pro-form";
+import { signUp } from "api/auth/signUp";
+import { routes } from "constants/routes";
+import { PersistKeys } from "constants/persistKeys";
+import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
 import Logo from "../../assets/images/logo.png";
-import { signUp } from "../../api/auth/signUp";
-import { routes } from "../../constants/routes";
-import { PersistKeys } from "../../constants/persistKeys";
-import { useCurrentAccount } from "../../hooks/useCurrentAccount/useCurrentAccount";
 
 type SignUpFormData = {
   password: string;
@@ -27,8 +27,9 @@ export const SignUp: FC = () => {
           signUp({ token, password: params.password }).then((data) => {
             notification.success({ message: "新規登録に成功しました" });
             localStorage.setItem(PersistKeys.AuthToken, data.token);
-            getAccount();
             navigate(routes.managements());
+            // FIXME
+            // getAccount();
           });
         }
       }}
