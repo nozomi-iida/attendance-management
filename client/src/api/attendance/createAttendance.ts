@@ -6,7 +6,7 @@ export async function createAttendance({
   urlParams,
 }: MutationVariables<{ id: number }, undefined>) {
   const res = await HttpClient.post<Attendance>(
-    `/accounts/${urlParams.id}/attendances`
+    `/attendances`
   );
   return res.data;
 }

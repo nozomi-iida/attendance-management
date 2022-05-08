@@ -15,14 +15,16 @@ const (
 
 type AccountSerializer struct {
 	models.Account
-	CurrentAttendance models.Attendance `json:"currentAttendance"`
+	CurrentAttendance *models.Attendance `json:"currentAttendance"`
 }
 
 func (as AccountSerializer) Response() AccountSerializer {
 	var attendance models.Attendance
 	now := time.Now()
 	models.DB.Where("account_id = ?", as.ID).Where("started_at BETWEEN ? AND ?", bod(now), truncate(now)).First(&attendance)
-	as.CurrentAttendance = attendance
+	if attendance.ID != 0 {
+		as.CurrentAttendance = &attendance
+	}
 
 	return as
 }

@@ -29,10 +29,6 @@ func TestMain(m *testing.M) {
 	spec.CloseDb()
 }
 
-type IndexAttendancesResponse struct {
-	Attendances []models.Attendance `json:"attendances"`
-}
-
 func TestIndexAttendance(t *testing.T) {
 	t.Run("badRequest for not select month", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -47,14 +43,15 @@ func TestIndexAttendance(t *testing.T) {
 		models.DB.Create(&models.Attendance{Account: &account, StartedAt: testTime})
 		req, _ := http.NewRequest("GET", "/attendances", nil)
 		query := req.URL.Query()
-		query.Add("month", testTime.Format("2006-01-02 15:04:05"))
+		query.Add("month", testTime.Format("2006-01"))
 		req.URL.RawQuery = query.Encode()
 		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
 		router.ServeHTTP(w, req)
-		var attendances IndexAttendancesResponse
+		var attendances []models.Attendance
 		_ = json.Unmarshal([]byte(w.Body.String()), &attendances)
 		assert.Equal(t, w.Code, 200)
-		assert.Equal(t, len(attendances.Attendances), 1)
+		println(w.Body.String())
+		assert.Equal(t, len(attendances), 1)
 	})
 }
 

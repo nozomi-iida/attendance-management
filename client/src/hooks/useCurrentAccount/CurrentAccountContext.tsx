@@ -20,8 +20,7 @@ export const currentAccountContext = createContext<CurrentAccountContext>({
 export const CurrentAccountProvider: FC<CurrentAccountProviderProps> = ({
   children,
 }) => {
-  // TODO
-  const [account, setAccount] = useState<Account>(mockAccount);
+  const [account, setAccount] = useState<Account>();
   useEffect(() => {
     const token = localStorage.getItem(PersistKeys.AuthToken);
     if (!token) return;
@@ -29,7 +28,7 @@ export const CurrentAccountProvider: FC<CurrentAccountProviderProps> = ({
     const [, p] = token.split(".");
     const { id } = JSON.parse(window.atob(p));
 
-    if (id) {
+    if (id !== undefined) {
       getAccount(id).then((data) => {
         setAccount(data);
       });

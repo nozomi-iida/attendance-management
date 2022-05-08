@@ -9,10 +9,11 @@ import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
 import { notification } from "antd";
 import { deleteAttendance } from "api/attendance/deleteAttendance";
 import { createAttendance } from "api/attendance/createAttendance";
+import {format} from "date-fns";
 
 export const useManagement = () => {
-  const { account } = useCurrentAccount();
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const { account, getAccount } = useCurrentAccount();
+  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), "yyyy-MM"));
   const { data, refetch } = useQuery(["attendances", selectedMonth], () =>
     getAttendances({ month: selectedMonth })
   );
@@ -31,15 +32,18 @@ export const useManagement = () => {
   const { mutate: createMutate } = useMutation(createAttendance, {
     onSuccess: async () => {
       notification.success({ message: "出勤しました" });
+      await getAccount()
       await refetch();
     },
   });
 
   const onChangeMonth = (month: Date) => {
-    setSelectedMonth(month);
+    setSelectedMonth(month.toString());
   };
+
   const onAttendance = () => {
     if (!account) return;
+
     createMutate({ urlParams: { id: account.id } });
   };
 

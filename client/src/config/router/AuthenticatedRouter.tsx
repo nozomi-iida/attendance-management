@@ -2,6 +2,7 @@ import { FC, ReactElement } from "react";
 import { Navigate } from "react-router-dom";
 import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
 import { routes } from "constants/routes";
+import {PersistKeys} from "constants/persistKeys";
 
 type UnauthenticatedRouterProps = {
   children: ReactElement;
@@ -10,6 +11,6 @@ type UnauthenticatedRouterProps = {
 export const AuthenticatedRouter: FC<UnauthenticatedRouterProps> = ({
   children,
 }) => {
-  const { account } = useCurrentAccount();
-  return account ? <Navigate to={routes.managements()} /> : children;
+  const token = localStorage.getItem(PersistKeys.AuthToken)
+  return token ? <Navigate to={routes.managements()} /> : children;
 };

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/nozomi-iida/attendance-management/app/controllers"
 	"github.com/nozomi-iida/attendance-management/config/middleware"
@@ -8,11 +9,16 @@ import (
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowAllOrigins: true,
+		AllowHeaders: []string{
+			"Authorization",
+		},
+	}))
 	r.Use(middleware.ErrorHandler())
 	accountController := controllers.NewAccountController()
 	authController := controllers.NewAuthController()
 	attendanceController := controllers.NewAttendanceController()
-
 	{
 		r.POST("/sign_up", authController.SignUp)
 		r.POST("/sign_in", authController.SignIn)

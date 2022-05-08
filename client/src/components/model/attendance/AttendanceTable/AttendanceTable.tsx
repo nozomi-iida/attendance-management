@@ -1,14 +1,14 @@
-import { FC, useMemo } from "react";
-import ProTable, { ProColumns } from "@ant-design/pro-table";
-import { Attendance, mockAttendance } from "api/attendance";
+import {FC, useMemo} from "react";
+import ProTable, {ProColumns} from "@ant-design/pro-table";
+import {Attendance, mockAttendance} from "api/attendance";
 import {Button, Space, Typography} from "antd";
-import { format } from "date-fns";
+import {format, parseISO} from "date-fns";
 import ja from "date-fns/locale/ja";
-import { numberToTime } from "helpers/helpers";
-import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
+import {numberToTime} from "helpers/helpers";
+import {useCurrentAccount} from "hooks/useCurrentAccount/useCurrentAccount";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import "moment/locale/ja";
-import { UpdateAttendanceRequestBody } from "api/attendance/updateAttendance";
+import {UpdateAttendanceRequestBody} from "api/attendance/updateAttendance";
 
 type AttendanceTableProps = {
   data?: Attendance[];
@@ -36,10 +36,13 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
   onUpdateAttendance,
   onDeleteAttendance,
 }) => {
+  const { account } = useCurrentAccount();
   const dataSource: AttendanceTableDataItem[] = useMemo(() => {
     return getAllDaysInMonth(5).map((date) => {
       const attendance = data?.find(
-        (el) => el.startedAt.getDate() === date.getDate()
+        (el) => {
+          return parseISO(el.startedAt).getDate() === date.getDate()
+        }
       );
       return {
         date,
@@ -47,7 +50,6 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
       };
     });
   }, [data]);
-  const { account } = useCurrentAccount();
 
   const columns: ProColumns<AttendanceTableDataItem>[] = [
     {
@@ -120,7 +122,7 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
         labelWidth: "auto",
         // eslint-disable-next-line react/no-unstable-nested-components
         optionRender: () => [
-          !account?.currentAttendance && <Button type="primary">出勤</Button>,
+          !account?.currentAttendance && <Button type="primary" onClick={onAttendance}>出勤</Button>,
           account?.currentAttendance &&
             (account?.currentAttendance.breakTime ? (
               <Button>休憩</Button>

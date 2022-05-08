@@ -25,7 +25,10 @@ func ConnectDatabase(dbname string) {
 		panic("Failed to connect to database!")
 	}
 
-	database.AutoMigrate(&Account{}, &Attendance{})
+	err = database.AutoMigrate(&Account{}, &Attendance{})
+	if err != nil {
+		panic("Failed to connect to migrate!")
+	}
 
 	fmt.Println("db connected!")
 	DB = database
