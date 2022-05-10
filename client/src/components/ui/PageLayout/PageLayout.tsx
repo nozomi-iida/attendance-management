@@ -27,7 +27,7 @@ export const PageLayout: FC<PageLayoutProps> = ({ children }) => {
           placement="bottomRight"
           title="アカウントサービス"
           content={
-            <Button type="text" danger onClick={logout}>
+            <Button type="link" danger onClick={logout}>
               ログアウト
             </Button>
           }

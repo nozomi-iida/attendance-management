@@ -1,11 +1,18 @@
 import {render, screen, waitFor} from "@testing-library/react";
 import {PageLayout} from "components/ui/PageLayout/PageLayout";
 import {createMemoryHistory} from "history";
-import {Router} from "react-router-dom";
+import {BrowserRouter, Router} from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import {CurrentAccountContext} from "hooks/useCurrentAccount/CurrentAccountContext";
 import {mockAccount} from "api/account";
 import {routes} from "constants/routes";
+
+test("should match snapshot", () => {
+  const {container} = render(<PageLayout><div /></PageLayout>, {wrapper: BrowserRouter})
+
+  // eslint-disable-next-line testing-library/no-node-access
+  expect(container.firstChild).toMatchSnapshot();
+})
 
 describe("PageLayout",  () => {
   test("logout", async() => {

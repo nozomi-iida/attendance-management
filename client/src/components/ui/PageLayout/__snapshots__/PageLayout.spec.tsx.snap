@@ -1,0 +1,163 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should match snapshot 1`] = `
+<div
+  class="ant-design-pro ant-pro-basicLayout screen-md ant-pro-basicLayout-side"
+>
+  <section
+    class="ant-layout ant-layout-has-sider"
+    style="min-height: 100%;"
+  >
+    <aside
+      class="ant-layout-sider ant-layout-sider-dark ant-pro-sider ant-pro-sider-layout-side"
+      style="overflow: hidden; flex: 0 0 208px; max-width: 208px; min-width: 208px; width: 208px;"
+    >
+      <div
+        class="ant-layout-sider-children"
+      >
+        <div
+          class="ant-pro-sider-logo"
+          id="logo"
+        >
+          <a>
+            <img
+              alt="logo"
+              src="logo.png"
+            />
+            <h1>
+              SIMULA.Labs
+            </h1>
+          </a>
+        </div>
+        <div
+          style="flex: 1; overflow-y: auto; overflow-x: hidden;"
+        >
+          <ul
+            class="ant-menu ant-menu-root ant-menu-inline ant-menu-dark ant-pro-sider-menu"
+            data-menu-list="true"
+            role="menu"
+            style="width: 100%;"
+            tabindex="0"
+          >
+            <li
+              class="ant-menu-item ant-menu-item-only-child"
+              data-menu-id="rc-menu-uuid-test-/dd93076c8360ebb9cc22e5fe5dcdf7dd624b4fa6c9966963bceaa08f9c5adc0c"
+              role="menuitem"
+              style="padding-left: 16px;"
+              tabindex="-1"
+            >
+              <span
+                class="ant-menu-title-content"
+              >
+                <span
+                  class="ant-pro-menu-item"
+                >
+                  <span
+                    aria-label="clock-circle"
+                    class="anticon anticon-clock-circle"
+                    role="img"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      data-icon="clock-circle"
+                      fill="currentColor"
+                      focusable="false"
+                      height="1em"
+                      viewBox="64 64 896 896"
+                      width="1em"
+                    >
+                      <path
+                        d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                      />
+                      <path
+                        d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
+                      />
+                    </svg>
+                  </span>
+                  <span
+                    class="ant-pro-menu-item-title"
+                  >
+                    勤怠管理
+                  </span>
+                </span>
+              </span>
+            </li>
+          </ul>
+          <div
+            aria-hidden="true"
+            style="display: none;"
+          />
+        </div>
+        <div
+          class="ant-pro-sider-links"
+        >
+          <ul
+            class="ant-menu ant-menu-root ant-menu-inline ant-menu-dark ant-pro-sider-link-menu"
+            data-menu-list="true"
+            role="menu"
+            tabindex="0"
+          >
+            <li
+              class="ant-menu-item ant-menu-item-only-child ant-pro-sider-collapsed-button"
+              data-menu-id="rc-menu-uuid-test-collapsed"
+              role="menuitem"
+              style="padding-left: 16px;"
+              tabindex="-1"
+            >
+              <span
+                class="ant-menu-title-content"
+              >
+                <span
+                  aria-label="menu-fold"
+                  class="anticon anticon-menu-fold"
+                  role="img"
+                >
+                  <svg
+                    aria-hidden="true"
+                    data-icon="menu-fold"
+                    fill="currentColor"
+                    focusable="false"
+                    height="1em"
+                    viewBox="64 64 896 896"
+                    width="1em"
+                  >
+                    <path
+                      d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 000 13.8z"
+                    />
+                  </svg>
+                </span>
+              </span>
+            </li>
+          </ul>
+          <div
+            aria-hidden="true"
+            style="display: none;"
+          />
+        </div>
+      </div>
+    </aside>
+    <div
+      class="ant-layout"
+      style="position: relative;"
+    >
+      <header
+        class="ant-layout-header ant-pro-fixed-header-action ant-pro-header-dark"
+        style="padding: 0px; height: 48px; line-height: 48px; width: 100%; z-index: 19;"
+      >
+        <div
+          class="ant-pro-global-header ant-pro-global-header-layout-side"
+        >
+          <div
+            style="flex: 1;"
+          />
+        </div>
+      </header>
+      <main
+        class="ant-layout-content ant-pro-basicLayout-content ant-pro-basicLayout-has-header"
+      >
+        <div />
+      </main>
+    </div>
+  </section>
+</div>
+`;
