@@ -55,8 +55,8 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{
-		"auth":  account,
-		"token": account.Jwt(),
+		"account": account,
+		"token":   account.Jwt(),
 	})
 }
 
@@ -88,7 +88,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 		fmt.Println("CompareHashAndPassword", err)
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"auth":  account,
-		"token": account.Jwt(),
+		"account": account,
+		"token":   account.Jwt(),
 	})
 }

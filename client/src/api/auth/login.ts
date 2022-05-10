@@ -1,5 +1,6 @@
+import { MutationVariables } from "api/index";
+import { HttpClient } from "lib/axios";
 import { Account } from "../account";
-import { HttpClient } from "../../lib/axios";
 
 export type LoginRequestBody = {
   email: string;
@@ -11,7 +12,9 @@ export type LoginResponse = {
   token: string;
 };
 
-export async function login(requestBody: LoginRequestBody) {
+export async function login({
+  requestBody,
+}: MutationVariables<undefined, LoginRequestBody>) {
   const res = await HttpClient.post<LoginResponse>("/login", requestBody);
   return res.data;
 }

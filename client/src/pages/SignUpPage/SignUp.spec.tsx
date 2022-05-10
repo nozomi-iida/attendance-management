@@ -1,33 +1,55 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { BrowserRouter, Router } from "react-router-dom";
+import {render, screen, waitFor} from "@testing-library/react";
+import {Router} from "react-router-dom";
 import userEvent from "@testing-library/user-event";
-import { setupServer } from "msw/node";
-import { rest } from "msw";
-import { createMemoryHistory } from "history";
-import { mockAccount } from "api/account";
-import { ApiHost } from "constants/urls";
-import { routes } from "constants/routes";
-import { PersistKeys } from "constants/persistKeys";
-import { act } from "react-dom/test-utils";
-import { SignUp } from "./SignUp";
+import {setupServer} from "msw/node";
+import {rest} from "msw";
+import {createMemoryHistory} from "history";
+import {mockAccount} from "api/account";
+import {ApiHost} from "constants/urls";
+import {routes} from "constants/routes";
+import {PersistKeys} from "constants/persistKeys";
+import {QueryClient, QueryClientProvider} from "react-query";
+import {ReactNode} from "react";
+import {SignUp} from "./SignUp";
+
+const history = createMemoryHistory();
+const queryClient = new QueryClient();
+
+const wrapper = ({children}: {children: ReactNode}) =>  (
+  <QueryClientProvider client={queryClient}>
+    <Router location={history.location} navigator={history}>
+      {children}
+    </Router>
+  </QueryClientProvider>
+)
 
 test("should match snapshot", () => {
-  const { container } = render(<SignUp />, { wrapper: BrowserRouter });
+  const { container } = render(<SignUp />, { wrapper });
   // eslint-disable-next-line testing-library/no-node-access
   expect(container.firstChild).toMatchSnapshot();
 });
 
 describe("Sign up page", () => {
+  const account = mockAccount()
   const server = setupServer(
     rest.post(`${ApiHost}/sign_up`, (req, res, ctx) => {
       return res(
         ctx.json({
-          account: mockAccount(),
+          account,
           token: "token",
         })
       );
     })
   );
+
+  server.use(
+    rest.get(`${ApiHost}/accounts/${account.id}`, (req, res, ctx) => {
+      return res(
+        ctx.json(account)
+      )
+    })
+  )
+
   beforeAll(() => {
     server.listen();
   });
@@ -36,7 +58,9 @@ describe("Sign up page", () => {
   });
 
   test("should validation error", async () => {
-    render(<SignUp />, { wrapper: BrowserRouter });
+    render(
+      <SignUp />,{wrapper}
+    );
     userEvent.click(screen.getByText("新規登録"));
     expect(
       await screen.findByText("パスワードを入力してください")
@@ -44,7 +68,9 @@ describe("Sign up page", () => {
   });
 
   test("should validation error when password not match with confirmationPassword", async () => {
-    render(<SignUp />, { wrapper: BrowserRouter });
+    render(
+      <SignUp />,{wrapper}
+    );
     userEvent.type(screen.getByPlaceholderText("パスワード"), "password");
     userEvent.type(screen.getByPlaceholderText("パスワード(確認用)"), "test");
     userEvent.click(screen.getByText("新規登録"));
@@ -54,12 +80,8 @@ describe("Sign up page", () => {
   });
 
   test("should not sign up", async () => {
-    const history = createMemoryHistory();
-    history.push(`${routes.signUp()}`);
     render(
-      <Router location={history.location} navigator={history}>
-        <SignUp />
-      </Router>
+      <SignUp />,{wrapper}
     );
     userEvent.type(screen.getByPlaceholderText("パスワード"), "password");
     userEvent.type(
@@ -76,12 +98,9 @@ describe("Sign up page", () => {
   });
 
   test("should sign up", async () => {
-    const history = createMemoryHistory();
-    history.push(`${routes.signUp()}?token=testTokne`);
+    history.push(`${routes.signUp()}?token=token`);
     render(
-      <Router location={history.location} navigator={history}>
-        <SignUp />
-      </Router>
+      <SignUp />,{wrapper}
     );
     userEvent.type(screen.getByPlaceholderText("パスワード"), "password");
     userEvent.type(
@@ -90,10 +109,10 @@ describe("Sign up page", () => {
     );
     userEvent.click(screen.getByText("新規登録"));
     await waitFor(() =>
-      expect(history.location.pathname).toBe(routes.managements())
+      expect(localStorage.getItem(PersistKeys.AuthToken)).toBe("token")
     );
     await waitFor(() =>
-      expect(localStorage.getItem(PersistKeys.AuthToken)).toBe("token")
+      expect(history.location.pathname).toBe(routes.managements())
     );
   });
 });

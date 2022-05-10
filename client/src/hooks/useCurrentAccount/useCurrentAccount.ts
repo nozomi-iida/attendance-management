@@ -9,16 +9,19 @@ export const useCurrentAccount = () => {
   const { account, setAccount } = useContext(CurrentAccountContext);
   const navigate = useNavigate();
 
-  const getCurrentAccount = () => {
-    const token = localStorage.getItem(PersistKeys.AuthToken);
-    if (!token) return;
+  const getCurrentAccount = async (id?: number) => {
+    let accountId = id
+    if(!accountId && account) {
+      accountId = account.id
+    }
+    if (!accountId) return;
 
-    const [, p] = token.split(".");
-    const { id } = JSON.parse(window.atob(p));
-    if (!id) return;
-    getAccount(id).then((data) => {
-      setAccount(data);
-    });
+    try {
+      const res = await getAccount(accountId)
+      setAccount(res)
+    } catch (e) {
+      throw new Error("エラー")
+    }
   };
 
   const logout = () => {
