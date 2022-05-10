@@ -9,6 +9,9 @@ import userEvent from "@testing-library/user-event";
 import {CurrentAccountContext} from "hooks/useCurrentAccount/CurrentAccountContext";
 import {QueryClient, QueryClientProvider} from "react-query";
 import {ReactNode} from "react";
+import {createMemoryHistory} from "history";
+import {routes} from "constants/routes";
+import {Router} from "react-router-dom";
 import {AttendanceTable} from "./AttendanceTable";
 
 // it("should match snapshot", () => {
@@ -65,7 +68,8 @@ describe("Attendance table", () => {
     </CurrentAccountContext.Provider>
   );
   beforeEach(() => {
-    render(<TestAttendanceTable />, {wrapper})
+    const history = createMemoryHistory();
+    render(<Router location={history.location} navigator={history}><TestAttendanceTable /></Router>, {wrapper})
   })
 
   it.skip("should change month", () => {});

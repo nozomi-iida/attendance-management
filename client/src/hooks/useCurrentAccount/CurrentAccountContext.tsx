@@ -1,21 +1,22 @@
 import { createContext, FC, ReactNode, useEffect, useState } from "react";
-import { Account, mockAccount } from "api/account";
+import { Account } from "api/account";
 import { PersistKeys } from "constants/persistKeys";
 import { getAccount } from "api/account/getAccount";
 
 type CurrentAccountContextUseCase = {
   account?: Account;
-  setAccount: (account: Account) => void;
+  setAccount: (account?: Account) => void;
 };
 
 type CurrentAccountProviderProps = {
   children: ReactNode;
 };
 
-export const CurrentAccountContext = createContext<CurrentAccountContextUseCase>({
-  account: undefined,
-  setAccount: () => undefined,
-});
+export const CurrentAccountContext =
+  createContext<CurrentAccountContextUseCase>({
+    account: undefined,
+    setAccount: () => undefined,
+  });
 
 export const CurrentAccountProvider: FC<CurrentAccountProviderProps> = ({
   children,

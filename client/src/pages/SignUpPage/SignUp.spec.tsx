@@ -8,6 +8,7 @@ import { mockAccount } from "api/account";
 import { ApiHost } from "constants/urls";
 import { routes } from "constants/routes";
 import { PersistKeys } from "constants/persistKeys";
+import { act } from "react-dom/test-utils";
 import { SignUp } from "./SignUp";
 
 test("should match snapshot", () => {
@@ -49,6 +50,28 @@ describe("Sign up page", () => {
     userEvent.click(screen.getByText("新規登録"));
     expect(
       await screen.findByText("パスワードが一致していません")
+    ).toBeInTheDocument();
+  });
+
+  test("should not sign up", async () => {
+    const history = createMemoryHistory();
+    history.push(`${routes.signUp()}`);
+    render(
+      <Router location={history.location} navigator={history}>
+        <SignUp />
+      </Router>
+    );
+    userEvent.type(screen.getByPlaceholderText("パスワード"), "password");
+    userEvent.type(
+      screen.getByPlaceholderText("パスワード(確認用)"),
+      "password"
+    );
+    userEvent.click(screen.getByText("新規登録"));
+    await waitFor(() =>
+      screen.findByText("招待リンクからのみ新規登録を行うことができます")
+    );
+    expect(
+      screen.getByText("招待リンクからのみ新規登録を行うことができます")
     ).toBeInTheDocument();
   });
 

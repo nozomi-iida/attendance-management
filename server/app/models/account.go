@@ -28,7 +28,7 @@ type Account struct {
 	Email       string         `json:"email" gorm:"not nul; unique"`
 	Password    string         `json:"password" gorm:"not null"`
 	Role        AccountRoll    `json:"role" gorm:"not null; default:general"`
-	Attendances []Attendance   `json:"attendances" gorm:"constraint:OnDelete:SET NULL"`
+	Attendances []Attendance   `json:"attendances,omitempty" gorm:"constraint:OnDelete:SET NULL"`
 }
 
 func CreateAccount(account *Account) error {

@@ -5,7 +5,8 @@ ENV SERVER_ROOT /server
 WORKDIR ${SERVER_ROOT}
 
 RUN apt-get update -qq && \
-    apt-get install git
+    apt-get install git && \
+    apt install -y postgresql-client
 
 COPY ./server/go.mod ${SERVER_ROOT}
 COPY ./server/go.sum ${SERVER_ROOT}
@@ -18,5 +19,6 @@ RUN go mod download && \
 ENV TZ=Asia/Tokyo
 
 COPY ./server ${SERVER_ROOT}
+COPY ./docker/go/wait-for-postgres.sh /wait-for-postgres.sh
 
-CMD ["air", "-c", ".air.toml"]
+CMD ["sh", "/wait-for-postgres.sh", "db", "air", "-c", ".air.toml"]

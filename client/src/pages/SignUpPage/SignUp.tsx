@@ -31,6 +31,10 @@ export const SignUp: FC = () => {
             // FIXME
             // getAccount();
           });
+        } else {
+          notification.error({
+            message: "招待リンクからのみ新規登録を行うことができます",
+          });
         }
       }}
       logo={Logo}

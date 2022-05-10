@@ -13,6 +13,7 @@ func SetupRouter() *gin.Engine {
 	config.AllowAllOrigins = true
 	config.AllowHeaders = []string{
 		"Authorization",
+		"Content-Type",
 	}
 	r.Use(cors.New(config))
 	r.Use(middleware.ErrorHandler())
@@ -21,7 +22,7 @@ func SetupRouter() *gin.Engine {
 	attendanceController := controllers.NewAttendanceController()
 	{
 		r.POST("/sign_up", authController.SignUp)
-		r.POST("/sign_in", authController.SignIn)
+		r.POST("/login", authController.Login)
 	}
 
 	accountsRoutes := r.Group("/accounts")

@@ -9,13 +9,11 @@ import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
 import { notification } from "antd";
 import { deleteAttendance } from "api/attendance/deleteAttendance";
 import { createAttendance } from "api/attendance/createAttendance";
-import moment, {Moment} from "moment";
+import moment, { Moment } from "moment";
 
 export const useManagement = () => {
   const { account, getAccount } = useCurrentAccount();
-  const [selectedMonth, setSelectedMonth] = useState(
-    moment(new Date())
-  );
+  const [selectedMonth, setSelectedMonth] = useState(moment(new Date()));
   const { data, refetch } = useQuery(["attendances", selectedMonth], () =>
     getAttendances({
       urlParams: { accountId: account?.id ?? 0 },

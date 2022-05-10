@@ -30,6 +30,6 @@ func ConnectDatabase(dbname string) {
 		panic("Failed to connect to migrate!")
 	}
 
-	fmt.Println("db connected!")
+	fmt.Println("postgresql connected!")
 	DB = database
 }
