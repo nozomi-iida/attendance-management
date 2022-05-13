@@ -1,6 +1,6 @@
-import {HttpClient} from "lib/axios";
-import {MutationVariables} from "api/index";
-import {Account} from "../account";
+import { HttpClient } from "lib/axios";
+import { MutationVariables } from "api/index";
+import { Account } from "../account";
 
 export type SignUpRequestBody = {
   token: string;
@@ -13,7 +13,9 @@ export type SignUpResponse = {
 };
 
 // functionじゃないと型定義がうまくいかない
-export async function signUp({requestBody}: MutationVariables<undefined, SignUpRequestBody>) {
+export async function signUp({
+  requestBody,
+}: MutationVariables<undefined, SignUpRequestBody>) {
   const res = await HttpClient.post<SignUpResponse>("/sign_up", requestBody);
   return res.data;
 }

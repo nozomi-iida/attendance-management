@@ -1,27 +1,27 @@
-import {render, screen, waitFor} from "@testing-library/react";
-import {Router} from "react-router-dom";
+import { render, screen, waitFor } from "@testing-library/react";
+import { Router } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
-import {setupServer} from "msw/node";
-import {rest} from "msw";
-import {createMemoryHistory} from "history";
-import {ApiHost} from "constants/urls";
-import {mockAccount} from "api/account";
-import {routes} from "constants/routes";
-import {PersistKeys} from "constants/persistKeys";
-import {QueryClient, QueryClientProvider} from "react-query";
-import {ReactNode} from "react";
-import {Login} from "./Login";
+import { setupServer } from "msw/node";
+import { rest } from "msw";
+import { createMemoryHistory } from "history";
+import { ApiHost } from "constants/urls";
+import { mockAccount } from "api/account";
+import { routes } from "constants/routes";
+import { PersistKeys } from "constants/persistKeys";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactNode } from "react";
+import { Login } from "./Login";
 
 const history = createMemoryHistory();
 const queryClient = new QueryClient();
 
-const wrapper = ({children}: {children: ReactNode}) =>  (
+const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={queryClient}>
     <Router location={history.location} navigator={history}>
       {children}
     </Router>
   </QueryClientProvider>
-)
+);
 
 it("should match snapshot", () => {
   const { container } = render(<Login />, { wrapper });
@@ -31,7 +31,7 @@ it("should match snapshot", () => {
 });
 
 describe("Login", () => {
-  const account = mockAccount()
+  const account = mockAccount();
   const server = setupServer(
     rest.post(`${ApiHost}/login`, (req, res, ctx) => {
       return res(
@@ -45,11 +45,9 @@ describe("Login", () => {
 
   server.use(
     rest.get(`${ApiHost}/accounts/${account.id}`, (req, res, ctx) => {
-      return res(
-        ctx.json(account)
-      )
+      return res(ctx.json(account));
     })
-  )
+  );
 
   beforeAll(() => {
     server.listen();
@@ -60,9 +58,7 @@ describe("Login", () => {
 
   beforeEach(() => {
     history.push(routes.login());
-    render(
-          <Login />,{wrapper}
-    );
+    render(<Login />, { wrapper });
   });
 
   it("should validation error", async () => {

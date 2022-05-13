@@ -10,17 +10,17 @@ export const useCurrentAccount = () => {
   const navigate = useNavigate();
 
   const getCurrentAccount = async (id?: number) => {
-    let accountId = id
-    if(!accountId && account) {
-      accountId = account.id
+    let accountId = id;
+    if (!accountId && account) {
+      accountId = account.id;
     }
     if (!accountId) return;
 
     try {
-      const res = await getAccount(accountId)
-      setAccount(res)
+      const res = await getAccount(accountId);
+      setAccount(res);
     } catch (e) {
-      throw new Error("エラー")
+      throw new Error("エラー");
     }
   };
 
