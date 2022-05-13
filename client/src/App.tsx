@@ -9,7 +9,7 @@ import { UnauthenticatedRouter } from "config/router/UnauthenticatedRouter";
 import { AuthenticatedRouter } from "config/router/AuthenticatedRouter";
 import { ConfigProvider } from "antd";
 import jaJp from "antd/lib/locale/ja_JP";
-import {ReactQueryDevtools} from "react-query/devtools";
+import { ReactQueryDevtools } from "react-query/devtools";
 
 const queryClient = new QueryClient();
 const App = () => (

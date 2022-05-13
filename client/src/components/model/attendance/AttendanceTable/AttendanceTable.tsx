@@ -13,7 +13,7 @@ import { numberToTime } from "helpers/helpers";
 import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
 import { UpdateAttendanceRequestBody } from "api/attendance/updateAttendance";
 import { ColumnProps } from "antd/es/table";
-import moment, {Moment} from "moment";
+import moment, { Moment } from "moment";
 import styles from "./AttendanceTable.module.scss";
 
 type AttendanceTableProps = {
@@ -30,13 +30,13 @@ type AttendanceTableDataItem = {
 } & Partial<Attendance>;
 
 const getAllDaysInMonth = (date: Moment) => {
-  const year = date.toDate().getFullYear()
-  const month = date.toDate().getMonth() + 1
-  return   Array.from(
+  const year = date.toDate().getFullYear();
+  const month = date.toDate().getMonth() + 1;
+  return Array.from(
     { length: new Date(year, month, 0).getDate() },
     (_, i) => new Date(year, month - 1, i + 1)
   );
-}
+};
 
 // TODO: 間違えて退勤を押してしまった場合の導線考えてない
 export const AttendanceTable: FC<AttendanceTableProps> = ({

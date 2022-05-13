@@ -7,20 +7,24 @@ import { login, LoginRequestBody } from "api/auth/login";
 import { routes } from "constants/routes";
 import { PersistKeys } from "constants/persistKeys";
 import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
+import { useMutation } from "react-query";
 import Logo from "../../assets/images/logo.png";
 
 export const Login: FC = () => {
   const { getAccount } = useCurrentAccount();
   const navigate = useNavigate();
+  const { mutate } = useMutation(login, {
+    onSuccess: async (data) => {
+      localStorage.setItem(PersistKeys.AuthToken, data.token);
+      await getAccount(data.account.id);
+      navigate(routes.managements());
+      notification.success({ message: "ログインしました" });
+    },
+  });
   return (
     <LoginForm<LoginRequestBody>
       onFinish={async (params) => {
-        login(params).then((data) => {
-          notification.success({ message: "ログインしました" });
-          localStorage.setItem(PersistKeys.AuthToken, data.token);
-          navigate(routes.managements());
-          // getAccount();
-        });
+        mutate({ requestBody: params });
       }}
       logo={Logo}
       title="SIMULA.Labs"

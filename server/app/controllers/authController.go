@@ -55,8 +55,8 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{
-		"auth":  account,
-		"token": account.Jwt(),
+		"account": account,
+		"token":   account.Jwt(),
 	})
 }
 
@@ -66,26 +66,29 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 	3. tokenを生成する
 	4. accountとtokenを返す
 */
-type SignInInput struct {
+type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-func (ac *AuthController) SignIn(c *gin.Context) {
-	var signInInput SignInInput
-	err := c.BindJSON(&signInInput)
+func (ac *AuthController) Login(c *gin.Context) {
+	var loginInput LoginInput
+	err := c.BindJSON(&loginInput)
 	if err != nil {
 		log.Fatal(err)
 	}
 	var account models.Account
-	models.DB.Where("email = ?", signInInput.Email).First(&account)
+	if err := models.DB.Where("email = ?", loginInput.Email).First(&account).Error; err != nil {
+		c.Error(errors.Unauthorized)
+		return
+	}
 	// FIXME: きれいに書きたい
-	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(signInInput.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(loginInput.Password))
 	if err != nil {
 		fmt.Println("CompareHashAndPassword", err)
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"auth":  account,
-		"token": account.Jwt(),
+		"account": account,
+		"token":   account.Jwt(),
 	})
 }

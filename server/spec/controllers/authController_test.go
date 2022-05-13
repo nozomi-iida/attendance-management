@@ -60,7 +60,7 @@ func TestSignUp(t *testing.T) {
 	})
 }
 
-func TestSignIn(t *testing.T) {
+func TestLogin(t *testing.T) {
 	account := models.Account{Email: "test@test.com", Password: "password", HandleName: "test"}
 	models.CreateAccount(&account)
 
@@ -68,9 +68,17 @@ func TestSignIn(t *testing.T) {
 		router := config.SetupRouter()
 		reqBody := strings.NewReader(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, account.Email, account.Password))
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("POST", "/sign_in", reqBody)
+		req, _ := http.NewRequest("POST", "/login", reqBody)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, w.Code, 200)
 		assert.MatchRegex(t, w.Body.String(), account.Email)
+	})
+	t.Run("record not found", func(t *testing.T) {
+		router := config.SetupRouter()
+		reqBody := strings.NewReader(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, "hoge@test.com", account.Password))
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/login", reqBody)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 401)
 	})
 }
