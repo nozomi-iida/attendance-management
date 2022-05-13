@@ -4,10 +4,9 @@ import { ApiHost } from "constants/urls";
 
 export const HttpClient = axios.create({
   baseURL: ApiHost,
+  headers: {
+    Authorization: `Bearer ${
+      localStorage.getItem(PersistKeys.AuthToken) ?? ""
+    }`,
+  },
 });
-
-const token = localStorage.getItem(PersistKeys.AuthToken);
-
-if (token) {
-  HttpClient.defaults.headers.common.Authorization = `Bearer ${token}`;
-}
