@@ -16,24 +16,20 @@ import (
 	"time"
 )
 
-var account = factories.Account()
-var router = config.SetupRouter()
-
-func TestMain(m *testing.M) {
-	spec.SetUp()
-	models.DB.Create(&account)
-	models.DB.Create(&models.Attendance{Account: &account})
-	models.DB.Create(&models.Attendance{Account: &account})
-	models.DB.Create(&models.Attendance{Account: &account})
-	m.Run()
-	spec.CloseDb()
-}
-
 type indexAttendanceResponse struct {
 	Attendances []models.Attendance `json:"attendances"`
 }
 
 func TestIndexAttendance(t *testing.T) {
+	spec.SetUp(t)
+	defer spec.CloseDb()
+	var account = factories.MockAccount()
+	models.DB.Create(&account)
+	models.DB.Create(&models.Attendance{Account: account})
+	models.DB.Create(&models.Attendance{Account: account})
+	models.DB.Create(&models.Attendance{Account: account})
+	var router = config.SetupRouter()
+
 	t.Run("badRequest for not select month", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("GET", fmt.Sprintf(`/accounts/%d/attendances`, account.ID), nil)
@@ -44,7 +40,7 @@ func TestIndexAttendance(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		testTime := time.Date(2020, 4, 15, 16, 48, 32, 12345, time.Local)
-		models.DB.Create(&models.Attendance{Account: &account, StartedAt: testTime})
+		models.DB.Create(&models.Attendance{Account: account, StartedAt: testTime})
 		req, _ := http.NewRequest("GET", fmt.Sprintf(`/accounts/%d/attendances`, account.ID), nil)
 		query := req.URL.Query()
 		query.Add("month", testTime.Format("2006-01"))
@@ -59,7 +55,14 @@ func TestIndexAttendance(t *testing.T) {
 }
 
 func TestGetAttendance(t *testing.T) {
-	attendance := models.Attendance{Account: &account}
+	spec.SetUp(t)
+	defer spec.CloseDb()
+	var account = factories.MockAccount()
+	models.DB.Create(&account)
+	models.DB.Create(&models.Attendance{Account: account})
+	var router = config.SetupRouter()
+
+	attendance := models.Attendance{Account: account}
 	models.DB.Create(&attendance)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/accounts/%d/attendances/%d", account.ID, attendance.ID), nil)
@@ -69,6 +72,12 @@ func TestGetAttendance(t *testing.T) {
 }
 
 func TestCreateAttendance(t *testing.T) {
+	spec.SetUp(t)
+	defer spec.CloseDb()
+	var account = factories.MockAccount()
+	models.DB.Create(&account)
+	var router = config.SetupRouter()
+
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", fmt.Sprintf(`/accounts/%d/attendances`, account.ID), nil)
 	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
@@ -76,21 +85,51 @@ func TestCreateAttendance(t *testing.T) {
 	assert.Equal(t, w.Code, 201)
 }
 
+// TODO: 退勤・休憩のテスト書く
 func TestUpdateAttendance(t *testing.T) {
-	attendance := models.Attendance{Account: &account}
-	workTime := 500
-	models.DB.Create(&attendance)
-	reqBody := strings.NewReader(fmt.Sprintf(`{"WorkTime": %d}`, workTime))
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d", account.ID, attendance.ID), reqBody)
-	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
-	router.ServeHTTP(w, req)
-	assert.Equal(t, w.Code, 200)
-	assert.MatchRegex(t, w.Body.String(), strconv.Itoa(workTime))
+	spec.SetUp(t)
+	defer spec.CloseDb()
+	account := factories.MockAccount()
+	models.DB.Create(&account)
+	var router = config.SetupRouter()
+
+	t.Run("update attendance", func(t *testing.T) {
+		attendance := models.Attendance{Account: account}
+		workTime := 500
+		models.DB.Create(&attendance)
+		reqBody := strings.NewReader(fmt.Sprintf(`{"workTime": %d}`, workTime))
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d", account.ID, attendance.ID), reqBody)
+		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 200)
+		assert.MatchRegex(t, w.Body.String(), strconv.Itoa(workTime))
+	})
+
+	t.Run("leaving work", func(t *testing.T) {
+		attendance := models.Attendance{Account: account, StartedAt: time.Date(2014, 12, 20, 12, 0, 0, 0, time.Local)}
+		models.DB.Create(&attendance)
+		reqBody := strings.NewReader(`{"endedAt": "2014-12-20T15:00:00.000Z"}`)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d", account.ID, attendance.ID), reqBody)
+		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+		router.ServeHTTP(w, req)
+		var response models.Attendance
+		_ = json.Unmarshal([]byte(w.Body.String()), &response)
+		assert.Equal(t, w.Code, 200)
+		assert.Equal(t, response.WorkTime, 720)
+	})
 }
 
 func TestDeleteAttendance(t *testing.T) {
-	attendance := models.Attendance{Account: &account}
+	spec.SetUp(t)
+	defer spec.CloseDb()
+	var account = factories.MockAccount()
+	models.DB.Create(&account)
+	models.DB.Create(&models.Attendance{Account: account})
+	var router = config.SetupRouter()
+
+	attendance := models.Attendance{Account: account}
 	models.DB.Create(&attendance)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("DELETE", fmt.Sprintf("/accounts/%d/attendances/%d", account.ID, attendance.ID), nil)

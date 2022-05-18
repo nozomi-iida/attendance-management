@@ -1,43 +1,40 @@
 package spec
 
 import (
-	"github.com/joho/godotenv"
+	"fmt"
 	"github.com/nozomi-iida/attendance-management/app/models"
 	"log"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
-func TestMain(m *testing.M) {
-	SetUp()
-	defer CleanUpFixture()
+var currentDir, _ = filepath.Abs(".")
 
-	m.Run()
-	CloseDb()
-}
-
-func SetUp() {
+func SetUp(t *testing.T) {
 	if err := os.Chdir("../.."); err != nil {
 		panic(err)
 	}
-	err_read := godotenv.Load(".env")
-	if err_read != nil {
-		log.Fatalf("error: %v", err_read)
-	}
+	t.Setenv("DATABASE_HOST", "db")
+	t.Setenv("DATABASE_PORT", "5432")
+	t.Setenv("DATABASE_USERNAME", "deploy")
+	t.Setenv("DATABASE_PASSWORD", "password")
 	models.ConnectDatabase("attendance_management_test")
 }
 
-// FIXME: modelが追加されるごとにコードを更新しないと行けないのが気に入らない
-func CleanUpFixture() {
-	models.DB.Exec("truncate accounts CASCADE;")
-	models.DB.Exec("truncate attendances;")
-}
-
 func CloseDb() {
+	if err := os.Chdir(currentDir); err != nil {
+		panic(err)
+	}
+	if err := os.Chdir("."); err != nil {
+		panic(err)
+	}
 	db, err := models.DB.DB()
 	if err != nil {
 		log.Fatal(err)
 	}
-	CleanUpFixture()
+	models.DB.Exec("truncate accounts CASCADE;")
+	models.DB.Exec("truncate attendances;")
 	db.Close()
+	fmt.Println("Close DB")
 }

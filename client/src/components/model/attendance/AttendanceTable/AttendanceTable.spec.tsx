@@ -32,7 +32,6 @@ describe("Attendance table", () => {
       onDeleteAttendance,
     } = useManagement();
     return (
-      // eslint-disable-next-line react/jsx-no-constructed-context-values
       <AttendanceTable
         selectedMonth={selectedMonth}
         onChangeMonth={onChangeMonth}
@@ -61,11 +60,6 @@ describe("Attendance table", () => {
         return res(ctx.json(mockAttendance()));
       }
     )
-  );
-  server.use(
-    rest.get(`${ApiHost}/accounts/${account.id}`, (req, res, ctx) => {
-      return res(ctx.json(mockAccount()));
-    })
   );
 
   beforeAll(() => {
@@ -99,6 +93,10 @@ describe("Attendance table", () => {
     userEvent.click(screen.getByRole("button", { name: "出 勤" }));
     await waitFor(() => screen.findByText("出勤しました"));
     expect(screen.getByText("出勤しました")).toBeInTheDocument();
+  });
+
+  it.skip('should get attendances in april',  () => {
+
   });
 
   it.skip("should start break", () => {});

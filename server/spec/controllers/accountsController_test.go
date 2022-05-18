@@ -17,16 +17,11 @@ import (
 	"time"
 )
 
-var account = factories.Account()
-
-func TestMain(m *testing.M) {
-	spec.SetUp()
-	models.DB.Create(&account)
-	m.Run()
-	spec.CloseDb()
-}
-
 func TestInviteAccount(t *testing.T) {
+	var account = factories.MockAccount()
+	spec.SetUp(t)
+	models.DB.Create(&account)
+	defer spec.CloseDb()
 	router := config.SetupRouter()
 
 	t.Run("success", func(t *testing.T) {
@@ -49,14 +44,18 @@ func TestInviteAccount(t *testing.T) {
 }
 
 func TestGetAccount(t *testing.T) {
-	models.DB.Create(&models.Attendance{Account: &account, StartedAt: time.Now()})
+	spec.SetUp(t)
+	defer spec.CloseDb()
+	var account = factories.MockAccount()
+	models.DB.Create(&account)
+	models.DB.Create(&models.Attendance{Account: account, StartedAt: time.Now()})
 	router := config.SetupRouter()
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/accounts/%s", strconv.FormatUint(uint64(account.ID), 10)), nil)
 	req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
 	router.ServeHTTP(w, req)
-	var account serializers.AccountSerializer
-	_ = json.Unmarshal([]byte(w.Body.String()), &account)
+	var accountSerializer serializers.AccountSerializer
+	_ = json.Unmarshal([]byte(w.Body.String()), &accountSerializer)
 	assert.Equal(t, w.Code, 200)
-	assert.Equal(t, account.CurrentAttendance.IsBreak, false)
+	assert.Equal(t, accountSerializer.CurrentAttendance.IsBreak, false)
 }

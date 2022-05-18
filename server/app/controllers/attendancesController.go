@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/nozomi-iida/attendance-management/app/models"
 	"github.com/nozomi-iida/attendance-management/config/middleware"
@@ -56,13 +57,48 @@ func (ac *AttendanceController) CreateAttendance(c *gin.Context) {
 	c.JSON(http.StatusCreated, attendance)
 }
 
+type UpdateAttendanceInput struct {
+	StartedAt time.Time  `json:"startedAt"`
+	EndedAt   *time.Time `json:"endedAt"`
+	WorkTime  int        `json:"workTime"`
+	BreakTime int        `json:"breakTime"`
+	IsBreak   *bool      `json:"isBreak"`
+}
+
 func (ac *AttendanceController) UpdateAttendance(c *gin.Context) {
-	var attendance models.Attendance
-	if err := c.ShouldBindJSON(&attendance); err != nil {
+	var updateAttendanceInput UpdateAttendanceInput
+	if err := c.ShouldBindJSON(&updateAttendanceInput); err != nil {
+		println("badrequest", err.Error())
 		c.Error(errors.BadRequest(err))
 		return
 	}
-	if err := models.DB.Model(&attendance).Where("id = ?", c.Param("id")).Updates(&attendance).Error; err != nil {
+	var attendance models.Attendance
+
+	if err := models.DB.Where("id = ?", c.Param("id")).First(&attendance).Error; err != nil {
+		c.Error(err)
+		return
+	}
+
+	fmt.Println(updateAttendanceInput.IsBreak)
+
+	if *updateAttendanceInput.IsBreak == false {
+		updateAttendanceInput.BreakTime = int(time.Now().Sub(attendance.UpdatedAt).Minutes())
+	}
+
+	if updateAttendanceInput.EndedAt != nil {
+		// ISO8601規格の時間しか受け取らない
+		EndedAtJST := updateAttendanceInput.EndedAt.In(time.FixedZone("JST", 9*60*60))
+		updateAttendanceInput.EndedAt = &EndedAtJST
+		updateAttendanceInput.WorkTime = int(updateAttendanceInput.EndedAt.Sub(attendance.StartedAt).Minutes())
+	}
+
+	if err := models.DB.Model(&attendance).Where("id = ?", c.Param("id")).Updates(models.Attendance{
+		IsBreak:   *updateAttendanceInput.IsBreak,
+		StartedAt: updateAttendanceInput.StartedAt,
+		EndedAt:   updateAttendanceInput.EndedAt,
+		WorkTime:  updateAttendanceInput.WorkTime,
+		BreakTime: updateAttendanceInput.BreakTime,
+	}).Error; err != nil {
 		c.Error(err)
 		return
 	}
