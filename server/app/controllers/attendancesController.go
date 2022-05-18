@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/nozomi-iida/attendance-management/app/models"
 	"github.com/nozomi-iida/attendance-management/config/middleware"
@@ -79,12 +78,6 @@ func (ac *AttendanceController) UpdateAttendance(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(updateAttendanceInput.IsBreak)
-
-	if *updateAttendanceInput.IsBreak == false {
-		updateAttendanceInput.BreakTime = int(time.Now().Sub(attendance.UpdatedAt).Minutes())
-	}
-
 	if updateAttendanceInput.EndedAt != nil {
 		// ISO8601規格の時間しか受け取らない
 		EndedAtJST := updateAttendanceInput.EndedAt.In(time.FixedZone("JST", 9*60*60))
@@ -93,7 +86,7 @@ func (ac *AttendanceController) UpdateAttendance(c *gin.Context) {
 	}
 
 	if err := models.DB.Model(&attendance).Where("id = ?", c.Param("id")).Updates(models.Attendance{
-		IsBreak:   *updateAttendanceInput.IsBreak,
+		//IsBreak:   *updateAttendanceInput.IsBreak,
 		StartedAt: updateAttendanceInput.StartedAt,
 		EndedAt:   updateAttendanceInput.EndedAt,
 		WorkTime:  updateAttendanceInput.WorkTime,

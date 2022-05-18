@@ -108,8 +108,9 @@ func TestUpdateAttendance(t *testing.T) {
 
 	t.Run("leaving work", func(t *testing.T) {
 		attendance := models.Attendance{Account: account, StartedAt: time.Date(2014, 12, 20, 12, 0, 0, 0, time.Local)}
+		endedAt := time.Date(2014, 12, 20, 15, 0, 0, 0, time.UTC).Format(time.RFC3339)
 		models.DB.Create(&attendance)
-		reqBody := strings.NewReader(`{"endedAt": "2014-12-20T15:00:00.000Z"}`)
+		reqBody := strings.NewReader(fmt.Sprintf(`{"endedAt": "%s"}`, endedAt))
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d", account.ID, attendance.ID), reqBody)
 		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
