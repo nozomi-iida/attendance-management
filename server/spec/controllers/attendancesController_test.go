@@ -85,7 +85,6 @@ func TestCreateAttendance(t *testing.T) {
 	assert.Equal(t, w.Code, 201)
 }
 
-// TODO: 退勤・休憩のテスト書く
 func TestUpdateAttendance(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
@@ -95,22 +94,23 @@ func TestUpdateAttendance(t *testing.T) {
 
 	t.Run("update attendance", func(t *testing.T) {
 		attendance := models.Attendance{Account: account}
-		workTime := 500
+		breakTime := 500
 		models.DB.Create(&attendance)
-		reqBody := strings.NewReader(fmt.Sprintf(`{"workTime": %d}`, workTime))
+		reqBody := strings.NewReader(fmt.Sprintf(`{"breakTime": %d}`, breakTime))
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d", account.ID, attendance.ID), reqBody)
 		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
 		router.ServeHTTP(w, req)
 		assert.Equal(t, w.Code, 200)
-		assert.MatchRegex(t, w.Body.String(), strconv.Itoa(workTime))
+		assert.MatchRegex(t, w.Body.String(), strconv.Itoa(breakTime))
 	})
 
 	t.Run("leaving work", func(t *testing.T) {
-		attendance := models.Attendance{Account: account, StartedAt: time.Date(2014, 12, 20, 12, 0, 0, 0, time.Local)}
-		endedAt := time.Date(2014, 12, 20, 15, 0, 0, 0, time.UTC).Format(time.RFC3339)
+		startedAt := time.Date(2014, 12, 20, 12, 0, 0, 0, time.UTC)
+		endedAt := time.Date(2014, 12, 20, 24, 0, 0, 0, time.UTC)
+		attendance := models.Attendance{Account: account, StartedAt: spec.ISOTime2JP(startedAt)}
 		models.DB.Create(&attendance)
-		reqBody := strings.NewReader(fmt.Sprintf(`{"endedAt": "%s"}`, endedAt))
+		reqBody := strings.NewReader(fmt.Sprintf(`{"endedAt": "%s", "startedAt": "%s"}`, endedAt.Format(time.RFC3339), startedAt.Format(time.RFC3339)))
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d", account.ID, attendance.ID), reqBody)
 		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
@@ -119,6 +119,114 @@ func TestUpdateAttendance(t *testing.T) {
 		_ = json.Unmarshal([]byte(w.Body.String()), &response)
 		assert.Equal(t, w.Code, 200)
 		assert.Equal(t, response.WorkTime, 720)
+	})
+
+	t.Run("update endedAt to nil", func(t *testing.T) {
+		endedAt := time.Now()
+		attendance := models.Attendance{Account: account, EndedAt: &endedAt}
+		models.DB.Create(&attendance)
+		reqBody := strings.NewReader(`{}`)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d", account.ID, attendance.ID), reqBody)
+		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+		router.ServeHTTP(w, req)
+		var response models.Attendance
+		_ = json.Unmarshal([]byte(w.Body.String()), &response)
+		assert.Equal(t, w.Code, 200)
+		assert.Equal(t, response.EndedAt, nil)
+	})
+
+	t.Run("update startedAt", func(t *testing.T) {
+		endedAt := time.Date(2014, 12, 20, 24, 0, 0, 0, time.UTC)
+		startedAt := time.Date(2014, 12, 20, 12, 0, 0, 0, time.UTC).Format(time.RFC3339)
+		endedAtJp := spec.ISOTime2JP(endedAt)
+		attendance := models.Attendance{Account: account, EndedAt: &endedAtJp}
+		models.DB.Create(&attendance)
+		reqBody := strings.NewReader(fmt.Sprintf(`{"startedAt": "%s", "endedAt": "%s"}`, startedAt, endedAt.Format(time.RFC3339)))
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d", account.ID, attendance.ID), reqBody)
+		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+		router.ServeHTTP(w, req)
+		var response models.Attendance
+		_ = json.Unmarshal([]byte(w.Body.String()), &response)
+		assert.Equal(t, w.Code, 200)
+		assert.Equal(t, response.WorkTime, 720)
+	})
+
+	t.Run("error when endedAt is earlier than startedAt", func(t *testing.T) {
+		startedAt := time.Date(2014, 12, 20, 24, 0, 0, 0, time.UTC)
+		endedAt := time.Date(2014, 12, 20, 12, 0, 0, 0, time.UTC).Format(time.RFC3339)
+		attendance := models.Attendance{Account: account, StartedAt: spec.ISOTime2JP(startedAt)}
+		models.DB.Create(&attendance)
+		reqBody := strings.NewReader(fmt.Sprintf(`{"startedAt": "%s", "endedAt": "%s"}`, startedAt.Format(time.RFC3339), endedAt))
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d", account.ID, attendance.ID), reqBody)
+		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 400)
+	})
+}
+
+func TestBreakAttendance(t *testing.T) {
+	spec.SetUp(t)
+	defer spec.CloseDb()
+	var account = factories.MockAccount()
+	models.DB.Create(&account)
+	var router = config.SetupRouter()
+
+	t.Run("start break", func(t *testing.T) {
+		attendance := models.Attendance{Account: account}
+		breakStartTime := time.Date(2014, 12, 20, 24, 0, 0, 0, time.UTC)
+		models.DB.Create(&attendance)
+		reqBody := strings.NewReader(fmt.Sprintf(`{"breakStartTime": "%s"}`, breakStartTime.Format(time.RFC3339)))
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d/break", account.ID, attendance.ID), reqBody)
+		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 200)
+		var response models.Attendance
+		_ = json.Unmarshal([]byte(w.Body.String()), &response)
+		//assert.Equal(t, response.BreakStartTime, spec.ISOTime2JP(breakStartTime))
+	})
+
+	t.Run("end break", func(t *testing.T) {
+		breakStartTime := spec.ISOTime2JP(time.Now().Add(-time.Hour))
+		attendance := models.Attendance{Account: account, BreakStartTime: &breakStartTime}
+		models.DB.Create(&attendance)
+		reqBody := strings.NewReader(fmt.Sprintf(`{"breakEndTime": "%s"}`, time.Now().Format(time.RFC3339)))
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d/break", account.ID, attendance.ID), reqBody)
+		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 200)
+		var response models.Attendance
+		_ = json.Unmarshal([]byte(w.Body.String()), &response)
+		assert.Equal(t, response.BreakTime, 60)
+	})
+}
+
+func TestFinishWork(t *testing.T) {
+	spec.SetUp(t)
+	defer spec.CloseDb()
+	account := factories.MockAccount()
+	models.DB.Create(account)
+	router := config.SetupRouter()
+	t.Run("finish work", func(t *testing.T) {
+		startedAt := time.Date(2014, 12, 20, 24, 0, 0, 0, time.UTC)
+		attendance := models.Attendance{
+			Account:   account,
+			StartedAt: spec.ISOTime2JP(startedAt),
+		}
+		models.DB.Create(&attendance)
+		reqBody := strings.NewReader(fmt.Sprintf(`{"EndedAt": "%s"}`, startedAt.Add(time.Hour).Format(time.RFC3339)))
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d/finish", account.ID, attendance.ID), reqBody)
+		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 200)
+		var response models.Attendance
+		_ = json.Unmarshal([]byte(w.Body.String()), &response)
+		assert.Equal(t, response.WorkTime, 60)
 	})
 }
 

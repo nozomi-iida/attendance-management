@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 var currentDir, _ = filepath.Abs(".")
@@ -37,4 +38,9 @@ func CloseDb() {
 	models.DB.Exec("truncate attendances;")
 	db.Close()
 	fmt.Println("Close DB")
+}
+
+// テストでは時間を常にUTCで使うため
+func ISOTime2JP(isoTime time.Time) time.Time {
+	return isoTime.In(time.FixedZone("JST", 9*60*60))
 }

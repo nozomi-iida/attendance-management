@@ -1,6 +1,6 @@
 export type Attendance = {
   id: number;
-  isBreak: boolean;
+  breakStartTime: string;
   workingTime: number;
   breakTime: number;
   startedAt: string;
@@ -10,7 +10,7 @@ export type Attendance = {
 export const mockAttendance = (modification?: Attendance): Attendance => {
   return {
     id: 1,
-    isBreak: false,
+    breakStartTime: new Date().toISOString(),
     workingTime: 180,
     breakTime: 30,
     startedAt: new Date().toISOString(),
