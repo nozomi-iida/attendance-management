@@ -142,14 +142,14 @@ func (ac *AttendanceController) BreakAttendance(c *gin.Context) {
 	c.JSON(http.StatusOK, attendance)
 }
 
-type FinishWorkInput struct {
+type LeaveWorkWorkInput struct {
 	EndedAt time.Time `json:"endedAt"`
 }
 
-func (ac *AttendanceController) FinishWork(c *gin.Context) {
+func (ac *AttendanceController) LeaveAttendance(c *gin.Context) {
 	var attendance models.Attendance
-	var finishWorkInput FinishWorkInput
-	if err := c.ShouldBindJSON(&finishWorkInput); err != nil {
+	var leaveWorkInput LeaveWorkWorkInput
+	if err := c.ShouldBindJSON(&leaveWorkInput); err != nil {
 		c.Error(errors.BadRequest(err))
 		return
 	}
@@ -159,9 +159,9 @@ func (ac *AttendanceController) FinishWork(c *gin.Context) {
 		return
 	}
 	// ISO8601規格の時間しか受け取らない
-	EndedAtJST := finishWorkInput.EndedAt.In(time.FixedZone("JST", 9*60*60))
+	EndedAtJST := leaveWorkInput.EndedAt.In(time.FixedZone("JST", 9*60*60))
 	attendance.EndedAt = &EndedAtJST
-	attendance.WorkTime = int(finishWorkInput.EndedAt.Sub(attendance.StartedAt).Minutes())
+	attendance.WorkTime = int(leaveWorkInput.EndedAt.Sub(attendance.StartedAt).Minutes())
 
 	if err := models.DB.Model(&attendance).Where("id = ?", c.Param("id")).Updates(attendance).Error; err != nil {
 		c.Error(err)

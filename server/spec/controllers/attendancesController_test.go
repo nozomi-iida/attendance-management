@@ -205,13 +205,13 @@ func TestBreakAttendance(t *testing.T) {
 	})
 }
 
-func TestFinishWork(t *testing.T) {
+func TestLeaveAttendance(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	account := factories.MockAccount()
 	models.DB.Create(account)
 	router := config.SetupRouter()
-	t.Run("finish work", func(t *testing.T) {
+	t.Run("leave work", func(t *testing.T) {
 		startedAt := time.Date(2014, 12, 20, 24, 0, 0, 0, time.UTC)
 		attendance := models.Attendance{
 			Account:   account,
@@ -220,7 +220,7 @@ func TestFinishWork(t *testing.T) {
 		models.DB.Create(&attendance)
 		reqBody := strings.NewReader(fmt.Sprintf(`{"EndedAt": "%s"}`, startedAt.Add(time.Hour).Format(time.RFC3339)))
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d/finish", account.ID, attendance.ID), reqBody)
+		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/accounts/%d/attendances/%d/leave", account.ID, attendance.ID), reqBody)
 		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
 		router.ServeHTTP(w, req)
 		assert.Equal(t, w.Code, 200)
