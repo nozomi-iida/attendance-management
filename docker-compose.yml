@@ -16,8 +16,8 @@ services:
       - server
   server:
     build:
-      context: .
-      dockerfile: docker/go/Dockerfile
+      context: ./server
+      dockerfile: Dockerfile
     ports:
       - 8080:8080
     tty: true

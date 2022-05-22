@@ -20,6 +20,11 @@ func SetupRouter() *gin.Engine {
 	accountController := controllers.NewAccountController()
 	authController := controllers.NewAuthController()
 	attendanceController := controllers.NewAttendanceController()
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "healthy!!!",
+		})
+	})
 	{
 		r.POST("/sign_up", authController.SignUp)
 		r.POST("/login", authController.Login)

@@ -1,15 +1,15 @@
-import {screen, waitFor, within} from "@testing-library/react";
-import {setupServer} from "msw/node";
-import {rest} from "msw";
-import {ApiHost} from "constants/urls";
-import {Attendance, mockAttendance} from "api/attendance";
-import {useManagement} from "pages/ManagementPage/useManagement";
-import {Account, mockAccount} from "api/account";
+import { screen, waitFor, within } from "@testing-library/react";
+import { setupServer } from "msw/node";
+import { rest } from "msw";
+import { ApiHost } from "constants/urls";
+import { Attendance, mockAttendance } from "api/attendance";
+import { useManagement } from "pages/ManagementPage/useManagement";
+import { Account, mockAccount } from "api/account";
 import userEvent from "@testing-library/user-event";
-import {createMemoryHistory} from "history";
+import { createMemoryHistory } from "history";
 import moment from "moment";
-import {customRender} from "helpers/specHelpers";
-import {AttendanceTable} from "./AttendanceTable";
+import { customRender } from "helpers/specHelpers";
+import { AttendanceTable } from "./AttendanceTable";
 
 // it("should match snapshot", () => {
 //   const { container } = render(<AttendanceTable />, { wrapper: BrowserRouter });
@@ -56,15 +56,15 @@ describe("Attendance table", () => {
       onDeleteAttendance,
     } = useManagement();
     return (
-        <AttendanceTable
-          selectedMonth={moment(new Date())}
-          onChangeMonth={onChangeMonth}
-          onAttendance={onAttendance}
-          onUpdateAttendance={onUpdateAttendance}
-          onDeleteAttendance={onDeleteAttendance}
-          onLeaveAttendance={onLeaveAttendance}
-          data={attendances}
-        />
+      <AttendanceTable
+        selectedMonth={moment(new Date())}
+        onChangeMonth={onChangeMonth}
+        onAttendance={onAttendance}
+        onUpdateAttendance={onUpdateAttendance}
+        onDeleteAttendance={onDeleteAttendance}
+        onLeaveAttendance={onLeaveAttendance}
+        data={attendances}
+      />
     );
   };
 
@@ -80,7 +80,11 @@ describe("Attendance table", () => {
         }
       )
     );
-    customRender(<TestAttendanceTable account={account} attendances={[]} />, {account, history, server});
+    customRender(<TestAttendanceTable account={account} attendances={[]} />, {
+      account,
+      history,
+      server,
+    });
     userEvent.click(screen.getByRole("button", { name: "出 勤" }));
     await waitFor(() => screen.findByText("出勤しました"));
     expect(screen.getByText("出勤しました")).toBeInTheDocument();
@@ -104,7 +108,11 @@ describe("Attendance table", () => {
       )
     );
 
-    customRender(<TestAttendanceTable account={account} attendances={[]} />, {account, history, server});
+    customRender(<TestAttendanceTable account={account} attendances={[]} />, {
+      account,
+      history,
+      server,
+    });
 
     userEvent.click(screen.getByRole("button", { name: "退 勤" }));
     await waitFor(() =>
@@ -134,7 +142,10 @@ describe("Attendance table", () => {
         }
       )
     );
-    customRender(<TestAttendanceTable account={account} attendances={[attendance]} />, {account, history, server});
+    customRender(
+      <TestAttendanceTable account={account} attendances={[attendance]} />,
+      { account, history, server }
+    );
 
     const attendanceForDeleteRow = within(
       screen.getByRole("row", { name: /14/i })
