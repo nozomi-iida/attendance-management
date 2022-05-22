@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/nozomi-iida/attendance-management/app/models"
@@ -28,7 +27,6 @@ func AuthenticateAccount() gin.HandlerFunc {
 			return
 		}
 
-		fmt.Println("token", len(token))
 		currentJwt := strings.Split(token, "Bearer ")[1]
 		var authClaims models.AuthClaims
 		_, err := jwt.ParseWithClaims(currentJwt, &authClaims, func(token *jwt.Token) (interface{}, error) {

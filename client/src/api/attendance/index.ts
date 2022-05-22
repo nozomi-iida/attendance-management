@@ -1,20 +1,22 @@
 export type Attendance = {
   id: number;
-  isBreak: boolean;
-  workingTime: number;
+  breakStartTime: string | null;
+  workTime: number;
   breakTime: number;
   startedAt: string;
-  endedAt: string;
+  endedAt: string | null;
 };
 
-export const mockAttendance = (modification?: Attendance): Attendance => {
+export const mockAttendance = (
+  modification?: Partial<Attendance>
+): Attendance => {
   return {
     id: 1,
-    isBreak: false,
-    workingTime: 180,
+    breakStartTime: null,
+    workTime: 180,
     breakTime: 30,
     startedAt: new Date().toISOString(),
-    endedAt: new Date().toISOString(),
+    endedAt: null,
     ...modification,
   };
 };

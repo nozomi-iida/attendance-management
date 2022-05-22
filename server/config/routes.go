@@ -39,6 +39,8 @@ func SetupRouter() *gin.Engine {
 		attendancesRoutes.POST("", attendanceController.CreateAttendance)
 		attendancesRoutes.GET("/:id", attendanceController.GetAttendance)
 		attendancesRoutes.PATCH("/:id", attendanceController.UpdateAttendance)
+		attendancesRoutes.PATCH("/:id/break", attendanceController.BreakAttendance)
+		attendancesRoutes.PATCH("/:id/leave", attendanceController.LeaveAttendance)
 		attendancesRoutes.DELETE("/:id", attendanceController.DeleteAttendance)
 	}
 	return r

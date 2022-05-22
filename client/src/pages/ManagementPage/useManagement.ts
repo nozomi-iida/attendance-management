@@ -10,6 +10,10 @@ import { notification } from "antd";
 import { deleteAttendance } from "api/attendance/deleteAttendance";
 import { createAttendance } from "api/attendance/createAttendance";
 import moment, { Moment } from "moment";
+import {
+  leaveAttendance,
+  LeaveAttendanceRequestBody,
+} from "api/attendance/leaveAttendance";
 
 export const useManagement = () => {
   const { account, getAccount } = useCurrentAccount();
@@ -24,6 +28,15 @@ export const useManagement = () => {
   const { mutate: updateMutate } = useMutation(updateAttendance, {
     onSuccess: async () => {
       notification.success({ message: "勤怠を更新しました" });
+      await getAccount();
+      await refetch();
+    },
+  });
+  const { mutate: leaveMutate } = useMutation(leaveAttendance, {
+    onSuccess: async () => {
+      notification.success({
+        message: "退勤しました。今日も一日お疲れ様です！",
+      });
       await getAccount();
       await refetch();
     },
@@ -64,6 +77,18 @@ export const useManagement = () => {
       requestBody: params,
     });
   };
+
+  const onLeaveAttendance = () => {
+    if (!account?.currentAttendance) return;
+
+    leaveMutate({
+      urlParams: { accountId: account.id, id: account.currentAttendance.id },
+      requestBody: {
+        endedAt: new Date().toISOString(),
+      },
+    });
+  };
+
   const onDeleteAttendance = async (id: number) => {
     if (!account) return;
     deleteMutate({ urlParams: { id, accountId: account.id } });
@@ -76,5 +101,6 @@ export const useManagement = () => {
     onAttendance,
     onUpdateAttendance,
     onDeleteAttendance,
+    onLeaveAttendance,
   };
 };

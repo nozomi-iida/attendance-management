@@ -1,18 +1,15 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { setupServer } from "msw/node";
-import { rest } from "msw";
-import { ApiHost } from "constants/urls";
-import { mockAttendance } from "api/attendance";
-import { useManagement } from "pages/ManagementPage/useManagement";
-import { mockAccount } from "api/account";
+import {screen, waitFor, within} from "@testing-library/react";
+import {setupServer} from "msw/node";
+import {rest} from "msw";
+import {ApiHost} from "constants/urls";
+import {Attendance, mockAttendance} from "api/attendance";
+import {useManagement} from "pages/ManagementPage/useManagement";
+import {Account, mockAccount} from "api/account";
 import userEvent from "@testing-library/user-event";
-import { CurrentAccountContext } from "hooks/useCurrentAccount/CurrentAccountContext";
-import { QueryClient, QueryClientProvider } from "react-query";
-import { ReactNode } from "react";
-import { createMemoryHistory } from "history";
-import { routes } from "constants/routes";
-import { Router } from "react-router-dom";
-import { AttendanceTable } from "./AttendanceTable";
+import {createMemoryHistory} from "history";
+import moment from "moment";
+import {customRender} from "helpers/specHelpers";
+import {AttendanceTable} from "./AttendanceTable";
 
 // it("should match snapshot", () => {
 //   const { container } = render(<AttendanceTable />, { wrapper: BrowserRouter });
@@ -22,51 +19,7 @@ import { AttendanceTable } from "./AttendanceTable";
 // });
 
 describe("Attendance table", () => {
-  const account = mockAccount({ currentAttendance: null });
-  const TestAttendanceTable = () => {
-    const {
-      selectedMonth,
-      onChangeMonth,
-      onUpdateAttendance,
-      onAttendance,
-      onDeleteAttendance,
-    } = useManagement();
-    return (
-      // eslint-disable-next-line react/jsx-no-constructed-context-values
-      <AttendanceTable
-        selectedMonth={selectedMonth}
-        onChangeMonth={onChangeMonth}
-        onAttendance={onAttendance}
-        onUpdateAttendance={onUpdateAttendance}
-        onDeleteAttendance={onDeleteAttendance}
-      />
-    );
-  };
-  const server = setupServer(
-    rest.get(
-      `${ApiHost}/accounts/${account.id}/attendances`,
-      (req, res, ctx) => {
-        return res(
-          ctx.json({
-            attendances: [mockAttendance(), mockAttendance()],
-          })
-        );
-      }
-    )
-  );
-  server.use(
-    rest.post(
-      `${ApiHost}/accounts/${account.id}/attendances`,
-      (req, res, ctx) => {
-        return res(ctx.json(mockAttendance()));
-      }
-    )
-  );
-  server.use(
-    rest.get(`${ApiHost}/accounts/${account.id}`, (req, res, ctx) => {
-      return res(ctx.json(mockAccount()));
-    })
-  );
+  const server = setupServer();
 
   beforeAll(() => {
     server.listen();
@@ -75,38 +28,123 @@ describe("Attendance table", () => {
   afterAll(() => {
     server.close();
   });
+  const history = createMemoryHistory();
 
-  const queryClient = new QueryClient();
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    // eslint-disable-next-line react/jsx-no-constructed-context-values
-    <CurrentAccountContext.Provider value={{ account, setAccount: jest.fn }}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </CurrentAccountContext.Provider>
-  );
-  beforeEach(() => {
-    const history = createMemoryHistory();
-    render(
-      <Router location={history.location} navigator={history}>
-        <TestAttendanceTable />
-      </Router>,
-      { wrapper }
+  type TestAttendanceTableProps = {
+    account: Account;
+    attendances: Attendance[];
+  };
+
+  const TestAttendanceTable = ({
+    account,
+    attendances,
+  }: TestAttendanceTableProps) => {
+    server.use(
+      rest.get(
+        `${ApiHost}/accounts/${account.id}/attendances`,
+        (req, res, ctx) => {
+          return res(ctx.json([mockAttendance()]));
+        }
+      )
     );
-  });
+
+    const {
+      onChangeMonth,
+      onUpdateAttendance,
+      onAttendance,
+      onLeaveAttendance,
+      onDeleteAttendance,
+    } = useManagement();
+    return (
+        <AttendanceTable
+          selectedMonth={moment(new Date())}
+          onChangeMonth={onChangeMonth}
+          onAttendance={onAttendance}
+          onUpdateAttendance={onUpdateAttendance}
+          onDeleteAttendance={onDeleteAttendance}
+          onLeaveAttendance={onLeaveAttendance}
+          data={attendances}
+        />
+    );
+  };
 
   it.skip("should change month", () => {});
 
   it("should attendance", async () => {
+    const account = mockAccount({ currentAttendance: null });
+    server.use(
+      rest.post(
+        `${ApiHost}/accounts/${account.id}/attendances`,
+        (req, res, ctx) => {
+          return res(ctx.json(mockAttendance()));
+        }
+      )
+    );
+    customRender(<TestAttendanceTable account={account} attendances={[]} />, {account, history, server});
     userEvent.click(screen.getByRole("button", { name: "出 勤" }));
     await waitFor(() => screen.findByText("出勤しました"));
     expect(screen.getByText("出勤しました")).toBeInTheDocument();
   });
 
+  it.skip("should get attendances in april", async () => {});
+
   it.skip("should start break", () => {});
 
   it.skip("should finish break", () => {});
 
-  it.skip("should finish work", () => {});
+  it("should leave work", async () => {
+    const account = mockAccount();
+    const attendance = mockAttendance();
+    server.use(
+      rest.patch(
+        `${ApiHost}/accounts/${account.id}/attendances/${attendance.id}/leave`,
+        (req, res, ctx) => {
+          return res(ctx.json(mockAttendance()));
+        }
+      )
+    );
+
+    customRender(<TestAttendanceTable account={account} attendances={[]} />, {account, history, server});
+
+    userEvent.click(screen.getByRole("button", { name: "退 勤" }));
+    await waitFor(() =>
+      screen.findByText("退勤しました。今日も一日お疲れ様です！")
+    );
+    expect(
+      screen.getByText("退勤しました。今日も一日お疲れ様です！")
+    ).toBeInTheDocument();
+  });
 
   it.skip("should edit attendance", () => {});
-  it.skip("should delete attendance", () => {});
+  it("should delete attendance", async () => {
+    const account = mockAccount();
+    const attendance = mockAttendance({
+      startedAt: new Date(
+        new Date().getFullYear(),
+        new Date().getMonth() + 1,
+        14
+      ).toISOString(),
+    });
+
+    server.use(
+      rest.delete(
+        `${ApiHost}/accounts/${account.id}/attendances/${attendance.id}`,
+        (req, res, ctx) => {
+          return res(ctx.json(mockAttendance()));
+        }
+      )
+    );
+    customRender(<TestAttendanceTable account={account} attendances={[attendance]} />, {account, history, server});
+
+    const attendanceForDeleteRow = within(
+      screen.getByRole("row", { name: /14/i })
+    );
+    userEvent.click(
+      attendanceForDeleteRow.getByRole("button", { name: "削 除" })
+    );
+    await waitFor(() => screen.findByText("本当に削除しますか?"));
+    userEvent.click(screen.getByRole("button", { name: "OK" }));
+    await waitFor(() => screen.findByText("勤怠を削除しました"));
+    expect(screen.getByText("勤怠を削除しました")).toBeInTheDocument();
+  });
 });

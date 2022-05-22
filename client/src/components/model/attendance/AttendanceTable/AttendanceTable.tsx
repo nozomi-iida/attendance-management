@@ -1,4 +1,4 @@
-import { FC, useMemo } from "react";
+import { FC, Fragment, useMemo } from "react";
 import { Attendance, mockAttendance } from "api/attendance";
 import {
   Button,
@@ -22,6 +22,7 @@ type AttendanceTableProps = {
   onChangeMonth: (month: Moment) => void;
   onAttendance: () => void;
   onUpdateAttendance: (id: number, params: UpdateAttendanceRequestBody) => void;
+  onLeaveAttendance: () => void;
   onDeleteAttendance: (id: number) => void;
 };
 
@@ -46,6 +47,7 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
   onChangeMonth,
   onUpdateAttendance,
   onDeleteAttendance,
+  onLeaveAttendance,
 }) => {
   const { account } = useCurrentAccount();
   const dataSource: AttendanceTableDataItem[] = useMemo(() => {
@@ -92,10 +94,10 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
     },
     {
       title: "総労働時間",
-      dataIndex: "workingTime",
+      dataIndex: "workTime",
       render: (_, entity) =>
-        entity.workingTime && (
-          <Typography.Text>{numberToTime(entity.workingTime)}</Typography.Text>
+        entity.workTime && (
+          <Typography.Text>{numberToTime(entity.workTime)}</Typography.Text>
         ),
     },
     {
@@ -134,20 +136,25 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
           onChange={(date) => date && onChangeMonth(date)}
         />
         <Space>
-          {!account?.currentAttendance && (
-            <Button size="large" type="primary" onClick={onAttendance}>
+          {account?.currentAttendance && !account.currentAttendance.endedAt ? (
+            <>
+              {account?.currentAttendance.breakTime ? (
+                <Button size="large">休憩終了</Button>
+              ) : (
+                <Button size="large">休憩</Button>
+              )}
+              <Button size="large" danger onClick={onLeaveAttendance}>
+                退勤
+              </Button>
+            </>
+          ) : (
+            <Button
+              size="large"
+              type="primary"
+              disabled={!!account?.currentAttendance}
+              onClick={onAttendance}
+            >
               出勤
-            </Button>
-          )}
-          {account?.currentAttendance &&
-            (account?.currentAttendance.breakTime ? (
-              <Button size="large">休憩終了</Button>
-            ) : (
-              <Button size="large">休憩</Button>
-            ))}
-          {account?.currentAttendance && (
-            <Button size="large" danger>
-              退勤
             </Button>
           )}
         </Space>
