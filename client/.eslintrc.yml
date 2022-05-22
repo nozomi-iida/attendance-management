@@ -32,3 +32,4 @@ rules:
   react/function-component-definition:
     - error
     - namedComponents: arrow-function
+  "@typescript-eslint/no-shadow": off

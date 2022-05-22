@@ -50,7 +50,6 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
   onLeaveAttendance,
 }) => {
   const { account } = useCurrentAccount();
-  console.log(account?.currentAttendance && !account.currentAttendance.endedAt);
   const dataSource: AttendanceTableDataItem[] = useMemo(() => {
     return getAllDaysInMonth(selectedMonth).map((date) => {
       const attendance = data?.find((el) => {
