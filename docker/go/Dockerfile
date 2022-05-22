@@ -5,8 +5,8 @@ ENV SERVER_ROOT /server
 WORKDIR ${SERVER_ROOT}
 
 RUN apt-get update -qq && \
-    apt-get install git && \
-    apt install -y postgresql-client
+    apt-get install git curl && \
+    apt install -y postgresql-client &&
 
 COPY ./server/go.mod ${SERVER_ROOT}
 COPY ./server/go.sum ${SERVER_ROOT}

@@ -1,0 +1,5 @@
+build:
+  docker:
+    server: ./docker/go/Dockerfile
+run:
+  server: ./server/main
