@@ -27,8 +27,13 @@ COPY . .
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" -o ${SERVER_ROOT}/main .
 
 FROM alpine
+
 ENV SERVER_ROOT /server
+
 WORKDIR ${SERVER_ROOT}
+
 COPY --from=builder ${SERVER_ROOT}/main ${SERVER_ROOT}
+
 ENV PORT=${PORT}
+
 CMD ["/server/main"]
