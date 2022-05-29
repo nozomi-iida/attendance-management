@@ -12,6 +12,7 @@ export const Management: FC = () => {
     onUpdateAttendance,
     onDeleteAttendance,
     onLeaveAttendance,
+    onStartBreakAttendance
   } = useManagement();
   return (
     <PageContainer>
@@ -21,6 +22,7 @@ export const Management: FC = () => {
         onDeleteAttendance={onDeleteAttendance}
         onUpdateAttendance={onUpdateAttendance}
         onLeaveAttendance={onLeaveAttendance}
+        onStartBreakAttendance={onStartBreakAttendance}
         data={attendances}
         onChangeMonth={onChangeMonth}
       />

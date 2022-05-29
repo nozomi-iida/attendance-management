@@ -21,7 +21,7 @@ ENV TZ=Asia/Tokyo
 COPY ./ ${SERVER_ROOT}
 COPY ./wait-for-postgres.sh /wait-for-postgres.sh
 
-#CMD ["sh", "/wait-for-postgres.sh", "db", "air", "-c", ".air.toml"]
+CMD ["sh", "/wait-for-postgres.sh", "db", "air", "-c", ".air.toml"]
 COPY . .
 
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" -o ${SERVER_ROOT}/main .

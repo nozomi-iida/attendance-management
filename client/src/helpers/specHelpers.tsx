@@ -18,11 +18,14 @@ type CustomWrapperProps = {
 
 const customWrapper = ({ account, children, history }: CustomWrapperProps) => {
   const queryClient = new QueryClient();
+  const spy = jest.fn((params) => {
+
+  })
 
   return (
     <CurrentAccountContext.Provider
       // eslint-disable-next-line react/jsx-no-constructed-context-values
-      value={{ account, setAccount: jest.fn }}
+      value={{ account, setAccount: spy }}
     >
       <QueryClientProvider client={queryClient}>
         <Router location={history.location} navigator={history}>

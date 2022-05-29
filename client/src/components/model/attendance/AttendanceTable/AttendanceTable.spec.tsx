@@ -22,8 +22,14 @@ describe("Attendance table", () => {
   const server = setupServer();
 
   beforeAll(() => {
-    server.listen();
+    server.listen({
+      onUnhandledRequest: 'warn',
+    });
   });
+
+  afterEach(() => {
+    server.resetHandlers()
+  })
 
   afterAll(() => {
     server.close();
@@ -54,6 +60,7 @@ describe("Attendance table", () => {
       onAttendance,
       onLeaveAttendance,
       onDeleteAttendance,
+      onStartBreakAttendance
     } = useManagement();
     return (
       <AttendanceTable
@@ -63,6 +70,7 @@ describe("Attendance table", () => {
         onUpdateAttendance={onUpdateAttendance}
         onDeleteAttendance={onDeleteAttendance}
         onLeaveAttendance={onLeaveAttendance}
+        onStartBreakAttendance={onStartBreakAttendance}
         data={attendances}
       />
     );
@@ -92,7 +100,34 @@ describe("Attendance table", () => {
 
   it.skip("should get attendances in april", async () => {});
 
-  it.skip("should start break", () => {});
+  it("should start break", async () => {
+    let attendance = mockAttendance({breakStartTime: null})
+    const account = mockAccount({currentAttendance: attendance})
+    server.use(
+      rest.patch(`${ApiHost}/accounts/${account.id}/attendances/${attendance.id}/break`, (req, res, ctx) => {
+        return res(ctx.json(attendance))
+      })
+    )
+    server.use(
+      rest.get(
+        `${ApiHost}/accounts/${account.id}`,
+        (req, res, ctx) => {
+          attendance = mockAttendance({breakStartTime: new Date().toString()})
+          return res(ctx.json(mockAccount({currentAttendance: mockAttendance({breakStartTime: new Date().toString()})})));
+        }
+      )
+    )
+    customRender(<TestAttendanceTable account={account} attendances={[attendance]} />, {
+      account,
+      history,
+      server
+    })
+    userEvent.click(screen.getByRole("button", {name: "休 憩"}))
+    // server.printHandlers()
+    await waitFor(() =>
+      screen.findByText("休憩終了")
+    );
+  });
 
   it.skip("should finish break", () => {});
 
