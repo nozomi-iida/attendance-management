@@ -49,7 +49,7 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
   onUpdateAttendance,
   onDeleteAttendance,
   onLeaveAttendance,
-                                                            onStartBreakAttendance
+  onStartBreakAttendance,
 }) => {
   const { account } = useCurrentAccount();
   const dataSource: AttendanceTableDataItem[] = useMemo(() => {
@@ -143,7 +143,9 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
               {account?.currentAttendance.breakStartTime ? (
                 <Button size="large">休憩終了</Button>
               ) : (
-                <Button size="large" onClick={onStartBreakAttendance}>休憩</Button>
+                <Button size="large" onClick={onStartBreakAttendance}>
+                  休憩
+                </Button>
               )}
               {/* 確認導線合ったほうが良いかも */}
               <Button size="large" danger onClick={onLeaveAttendance}>

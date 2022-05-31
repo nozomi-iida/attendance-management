@@ -8,5 +8,6 @@ export const HttpClient = axios.create({
     Authorization: `Bearer ${
       localStorage.getItem(PersistKeys.AuthToken) ?? ""
     }`,
+    'Access-Control-Allow-Origin': '*'
   },
 });

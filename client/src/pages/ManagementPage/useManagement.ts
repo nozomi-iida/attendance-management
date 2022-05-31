@@ -14,7 +14,7 @@ import {
   leaveAttendance,
   LeaveAttendanceRequestBody,
 } from "api/attendance/leaveAttendance";
-import {breakAttendance} from "api/attendance/breakAttendance";
+import { breakAttendance } from "api/attendance/breakAttendance";
 
 export const useManagement = () => {
   const { account, getAccount } = useCurrentAccount();
@@ -103,9 +103,12 @@ export const useManagement = () => {
   };
 
   const onStartBreakAttendance = async () => {
-    if(!account?.currentAttendance) return;
-    await breakMutate({urlParams: {accountId: account.id, id: account.currentAttendance.id}, requestBody: {breakStartTime: new Date().toISOString()}})
-  }
+    if (!account?.currentAttendance) return;
+    await breakMutate({
+      urlParams: { accountId: account.id, id: account.currentAttendance.id },
+      requestBody: { breakStartTime: new Date().toISOString() },
+    });
+  };
 
   return {
     attendances: data?.attendances,
@@ -115,6 +118,6 @@ export const useManagement = () => {
     onUpdateAttendance,
     onDeleteAttendance,
     onLeaveAttendance,
-    onStartBreakAttendance
+    onStartBreakAttendance,
   };
 };

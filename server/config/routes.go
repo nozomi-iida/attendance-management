@@ -14,6 +14,7 @@ func SetupRouter() *gin.Engine {
 	config.AllowHeaders = []string{
 		"Authorization",
 		"Content-Type",
+		"Access-Control-Allow-Origin",
 	}
 	r.Use(cors.New(config))
 	r.Use(middleware.ErrorHandler())
@@ -28,6 +29,7 @@ func SetupRouter() *gin.Engine {
 	{
 		r.POST("/sign_up", authController.SignUp)
 		r.POST("/login", authController.Login)
+		r.GET("/slack_auth", authController.SlackAuth)
 	}
 
 	accountsRoutes := r.Group("/accounts")

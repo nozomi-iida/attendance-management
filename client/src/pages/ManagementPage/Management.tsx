@@ -12,7 +12,7 @@ export const Management: FC = () => {
     onUpdateAttendance,
     onDeleteAttendance,
     onLeaveAttendance,
-    onStartBreakAttendance
+    onStartBreakAttendance,
   } = useManagement();
   return (
     <PageContainer>

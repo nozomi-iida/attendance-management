@@ -1,14 +1,17 @@
 import { FC } from "react";
 import { LoginForm, ProFormText } from "@ant-design/pro-form";
-import { Button, notification } from "antd";
-import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import { Button, notification, Space } from "antd";
+import { LockOutlined, SlackOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { login, LoginRequestBody } from "api/auth/login";
 import { routes } from "constants/routes";
 import { PersistKeys } from "constants/persistKeys";
 import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
 import { useMutation } from "react-query";
+import {slackAuth} from "api/auth/slackAuth";
+import {ApiHost} from "constants/urls";
 import Logo from "../../assets/images/logo.png";
+import styles from "./Login.module.scss";
 
 export const Login: FC = () => {
   const { getAccount } = useCurrentAccount();
@@ -29,17 +32,27 @@ export const Login: FC = () => {
       logo={Logo}
       title="SIMULA.Labs"
       subTitle="勤怠管理"
+      className={styles.spaceBox}
       submitter={{
         render: (props) => (
-          <Button
-            key="submit"
-            block
-            type="primary"
-            // eslint-disable-next-line react/prop-types
-            onClick={() => props.form?.submit?.()}
-          >
-            ログイン
-          </Button>
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Button
+              key="submit"
+              block
+              type="primary"
+              // eslint-disable-next-line react/prop-types
+              onClick={() => props.form?.submit?.()}
+            >
+              ログイン
+            </Button>
+            <Button
+              block
+              href="https://slack.com/oauth/v2/authorize?client_id=2897932471331.2897900103986&scope=app_mentions:read,channels:history,chat:write,users:read,files:write&user_scope=identify"
+              icon={<SlackOutlined />}
+            >
+              Slackでログイン
+            </Button>
+          </Space>
         ),
       }}
     >

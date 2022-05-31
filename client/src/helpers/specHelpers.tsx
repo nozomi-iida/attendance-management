@@ -18,9 +18,7 @@ type CustomWrapperProps = {
 
 const customWrapper = ({ account, children, history }: CustomWrapperProps) => {
   const queryClient = new QueryClient();
-  const spy = jest.fn((params) => {
-
-  })
+  const spy = jest.fn((params) => {});
 
   return (
     <CurrentAccountContext.Provider
