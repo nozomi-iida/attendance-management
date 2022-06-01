@@ -69,7 +69,9 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
       title: "日付",
       dataIndex: "date",
       render: (_, entity) => (
-        <Typography.Text>
+        <Typography.Text
+          strong={entity.date.getDate() === new Date().getDate()}
+        >
           {moment(entity.date).format("MM/D(dd)")}
         </Typography.Text>
       ),

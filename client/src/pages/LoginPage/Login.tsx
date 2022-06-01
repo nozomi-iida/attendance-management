@@ -8,8 +8,8 @@ import { routes } from "constants/routes";
 import { PersistKeys } from "constants/persistKeys";
 import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
 import { useMutation } from "react-query";
-import {slackAuth} from "api/auth/slackAuth";
-import {ApiHost} from "constants/urls";
+import { slackAuth } from "api/auth/slackAuth";
+import { ApiHost } from "constants/urls";
 import Logo from "../../assets/images/logo.png";
 import styles from "./Login.module.scss";
 

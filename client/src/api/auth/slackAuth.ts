@@ -10,5 +10,5 @@ export type LoginResponse = {
 
 export async function slackAuth() {
   const res = await HttpClient.get<LoginResponse>("/slack_auth");
-  console.log(res)
+  console.log(res);
 }
