@@ -1,4 +1,4 @@
-import { FC, Fragment, useMemo } from "react";
+import { FC, useMemo } from "react";
 import { Attendance, mockAttendance } from "api/attendance";
 import {
   Button,
@@ -25,6 +25,7 @@ type AttendanceTableProps = {
   onLeaveAttendance: () => void;
   onDeleteAttendance: (id: number) => void;
   onStartBreakAttendance: () => void;
+  onEndBreakAttendance: () => void;
 };
 
 type AttendanceTableDataItem = {
@@ -50,6 +51,7 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
   onDeleteAttendance,
   onLeaveAttendance,
   onStartBreakAttendance,
+  onEndBreakAttendance,
 }) => {
   const { account } = useCurrentAccount();
   const dataSource: AttendanceTableDataItem[] = useMemo(() => {
@@ -70,7 +72,10 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
       dataIndex: "date",
       render: (_, entity) => (
         <Typography.Text
-          strong={entity.date.getDate() === new Date().getDate()}
+          strong={
+            entity.date.getMonth() === new Date().getMonth() &&
+            entity.date.getDate() === new Date().getDate()
+          }
         >
           {moment(entity.date).format("MM/D(dd)")}
         </Typography.Text>
@@ -143,16 +148,23 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
           {account?.currentAttendance && !account.currentAttendance.endedAt ? (
             <>
               {account?.currentAttendance.breakStartTime ? (
-                <Button size="large">休憩終了</Button>
+                <Button size="large" onClick={onEndBreakAttendance}>
+                  休憩終了
+                </Button>
               ) : (
                 <Button size="large" onClick={onStartBreakAttendance}>
                   休憩
                 </Button>
               )}
-              {/* 確認導線合ったほうが良いかも */}
-              <Button size="large" danger onClick={onLeaveAttendance}>
-                退勤
-              </Button>
+              <Popconfirm
+                title="退勤しますか?"
+                placement="topRight"
+                onConfirm={onLeaveAttendance}
+              >
+                <Button size="large" danger>
+                  退勤
+                </Button>
+              </Popconfirm>
             </>
           ) : (
             <Button

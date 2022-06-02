@@ -61,6 +61,7 @@ describe("Attendance table", () => {
       onLeaveAttendance,
       onDeleteAttendance,
       onStartBreakAttendance,
+      onEndBreakAttendance,
     } = useManagement();
     return (
       <AttendanceTable
@@ -71,6 +72,7 @@ describe("Attendance table", () => {
         onDeleteAttendance={onDeleteAttendance}
         onLeaveAttendance={onLeaveAttendance}
         onStartBreakAttendance={onStartBreakAttendance}
+        onEndBreakAttendance={onEndBreakAttendance}
         data={attendances}
       />
     );

@@ -51,7 +51,6 @@ export const useManagement = () => {
   });
   const { mutate: breakMutate } = useMutation(breakAttendance, {
     onSuccess: async () => {
-      notification.success({ message: "休憩を開始しました" });
       await getAccount();
       await refetch();
     },
@@ -108,6 +107,16 @@ export const useManagement = () => {
       urlParams: { accountId: account.id, id: account.currentAttendance.id },
       requestBody: { breakStartTime: new Date().toISOString() },
     });
+    notification.success({ message: "休憩を開始しました" });
+  };
+
+  const onEndBreakAttendance = async () => {
+    if (!account?.currentAttendance) return;
+    await breakMutate({
+      urlParams: { accountId: account.id, id: account.currentAttendance.id },
+      requestBody: { breakEndTime: new Date().toISOString() },
+    });
+    notification.success({ message: "休憩を終了しました" });
   };
 
   return {
@@ -119,5 +128,6 @@ export const useManagement = () => {
     onDeleteAttendance,
     onLeaveAttendance,
     onStartBreakAttendance,
+    onEndBreakAttendance,
   };
 };
