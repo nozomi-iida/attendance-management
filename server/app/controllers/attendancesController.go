@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/nozomi-iida/attendance-management/app/models"
 	"github.com/nozomi-iida/attendance-management/config/middleware"
@@ -118,7 +117,6 @@ func (ac *AttendanceController) BreakAttendance(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("breakingAttendanceInput", attendance.BreakStartTime)
 	if breakingAttendanceInput.BreakStartTime != nil {
 		breakStartTimeJST := breakingAttendanceInput.BreakStartTime.In(time.FixedZone("JST", 9*60*60))
 		attendance.BreakStartTime = &breakStartTimeJST

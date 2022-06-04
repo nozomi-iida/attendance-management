@@ -1,8 +1,11 @@
-import { FC, useMemo } from "react";
+import { FC, useMemo, useState } from "react";
 import { Attendance, mockAttendance } from "api/attendance";
 import {
   Button,
   DatePicker,
+  Form,
+  InputNumber,
+  Modal,
   Popconfirm,
   Row,
   Space,
@@ -54,6 +57,8 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
   onEndBreakAttendance,
 }) => {
   const { account } = useCurrentAccount();
+  const [selectedAttendance, setSelectedAttendance] =
+    useState<AttendanceTableDataItem>();
   const dataSource: AttendanceTableDataItem[] = useMemo(() => {
     return getAllDaysInMonth(selectedMonth).map((date) => {
       const attendance = data?.find((el) => {
@@ -65,6 +70,7 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
       };
     });
   }, [data, selectedMonth]);
+  const [form] = Form.useForm();
 
   const columns: ColumnProps<AttendanceTableDataItem>[] = [
     {
@@ -122,7 +128,12 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
       render: (_, entity) =>
         entity.id && (
           <Space>
-            <Button type="primary">編集</Button>
+            <Button
+              type="primary"
+              onClick={() => setSelectedAttendance(entity)}
+            >
+              編集
+            </Button>
             <Popconfirm
               title="本当に削除しますか?"
               onConfirm={() => onDeleteAttendance(entity.id ?? 0)}
@@ -184,6 +195,51 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
         dataSource={dataSource}
         columns={columns}
       />
+
+        <Modal
+          title="勤怠を編集"
+          visible={!!selectedAttendance}
+          onCancel={() => {
+            console.log("reset")
+            form.resetFields()
+            setSelectedAttendance(undefined)
+          }}
+          onOk={form.submit}
+        >
+          <Form
+            form={form}
+            initialValues={{
+              startedAt: moment(selectedAttendance?.startedAt),
+              endedAt: selectedAttendance?.endedAt
+                ? moment(selectedAttendance?.endedAt)
+                : undefined,
+              breakTime: selectedAttendance?.breakTime
+            }}
+            onFinish={(values) => {
+              console.log(values);
+            }}
+          >
+            <Form.Item
+              label="出勤時刻"
+              name="startedAt"
+              rules={[{ required: true, message: "出勤時刻の入力は必須です" }]}
+            >
+              <DatePicker picker="time" />
+            </Form.Item>
+            <Form.Item label="退勤時刻" name="endedAt">
+              <DatePicker
+                picker="time"
+              />
+            </Form.Item>
+            {/* FIXME: https://github.com/ant-design/ant-design/issues/35639 */}
+            <Form.Item
+              label="休憩時間"
+              name="breakTime"
+            >
+              <InputNumber />
+            </Form.Item>
+          </Form>
+        </Modal>
     </div>
   );
 };
