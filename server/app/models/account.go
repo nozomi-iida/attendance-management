@@ -18,26 +18,27 @@ const (
 )
 
 // TODO: メールのバリデーションをかける
-// TODO: IDをuuidにしたい
 type Account struct {
-	ID          uint           `json:"id" gorm:"primaryKey"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	UpdatedAt   time.Time      `json:"updatedAt"`
-	DeletedAt   gorm.DeletedAt `json:"deletedAt" gorm:"index"`
-	HandleName  string         `json:"handleName"`
-	Email       string         `json:"email" gorm:"not nul; unique"`
-	Password    string         `json:"password" gorm:"not null"`
-	Role        AccountRoll    `json:"role" gorm:"not null; default:general"`
-	Attendances []Attendance   `json:"attendances,omitempty" gorm:"constraint:OnDelete:SET NULL"`
+	ID               uint           `json:"id" gorm:"primaryKey"`
+	CreatedAt        time.Time      `json:"createdAt"`
+	UpdatedAt        time.Time      `json:"updatedAt"`
+	DeletedAt        gorm.DeletedAt `json:"deletedAt" gorm:"index"`
+	HandleName       string         `json:"handleName"`
+	Email            string         `json:"email" gorm:"not nul; unique"`
+	Password         *string        `json:"password"`
+	SlackAccessToken *string        `json:"slackAccessToken"`
+	Role             AccountRoll    `json:"role" gorm:"not null; default:general"`
+	Attendances      []Attendance   `json:"attendances,omitempty" gorm:"constraint:OnDelete:SET NULL"`
 }
 
 func CreateAccount(account *Account) error {
 	handleName := strings.Split(account.Email, "@")[0]
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(account.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*account.Password), bcrypt.DefaultCost)
+	hashedPasswordString := string(hashedPassword)
 	if err != nil {
 		return err
 	}
-	account = &Account{Email: account.Email, HandleName: handleName, Password: string(hashedPassword)}
+	account = &Account{Email: account.Email, HandleName: handleName, Password: &hashedPasswordString}
 
 	if err = DB.Create(&account).Error; err != nil {
 		return err

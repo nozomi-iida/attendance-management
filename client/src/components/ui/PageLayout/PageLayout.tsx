@@ -44,6 +44,7 @@ export const PageLayout: FC<PageLayoutProps> = ({ children }) => {
       title="SIMULA.Labs"
       logo={Logo}
       rightContentRender={() => rightContentRender}
+      fixSiderbar
     >
       {children}
     </ProLayout>

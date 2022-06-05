@@ -98,7 +98,7 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
       render: (_, entity) =>
         entity.startedAt && (
           <Typography.Text>
-            {moment(entity.startedAt).format("H:m")}
+            {moment(entity.startedAt).format("HH:mm")}
           </Typography.Text>
         ),
     },
@@ -108,7 +108,7 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
       render: (_, entity) =>
         entity.endedAt && (
           <Typography.Text>
-            {moment(entity.endedAt).format("H:m")}
+            {moment(entity.endedAt).format("HH:mm")}
           </Typography.Text>
         ),
     },
@@ -164,19 +164,22 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
     { label: "労働時間", key: "workTime" },
   ];
   const csvData = useMemo(() => {
-    let totalWorkTime = 0
-    const attendanceData = data?.map(el => {
-      totalWorkTime += el.workTime
+    let totalWorkTime = 0;
+    const attendanceData = data?.map((el) => {
+      totalWorkTime += el.workTime;
       return {
         date: moment(el.startedAt).format("YYYY-MM-DD"),
         startedAt: moment(el.startedAt).format("YYYY-MM-DD"),
         endedAt: el.endedAt ? moment(el.endedAt).format("YYYY-MM-DD") : "",
         breakTime: numberToTime(el.breakTime),
         workTime: numberToTime(el.workTime),
-      }
-    })
-    return [...attendanceData, {date: "合計時間", workTime: numberToTime(totalWorkTime)}]
-  }, [data])
+      };
+    });
+    return [
+      ...attendanceData,
+      { date: "合計時間", workTime: numberToTime(totalWorkTime) },
+    ];
+  }, [data]);
 
   return (
     <div className={styles.flexBox}>
@@ -222,7 +225,11 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
         </Space>
       </Row>
       <div>
-        <CSVLink filename={`${selectedMonth.format("MM")}月の勤怠表`} data={csvData} headers={headers}>
+        <CSVLink
+          filename={`${selectedMonth.format("MM")}月の勤怠表`}
+          data={csvData}
+          headers={headers}
+        >
           <Button icon={<CloudDownloadOutlined />}>ダウンロード</Button>
         </CSVLink>
       </div>

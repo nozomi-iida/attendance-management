@@ -51,7 +51,7 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 		c.Error(errors.DuplicateEmailError)
 		return
 	}
-	account := models.Account{Email: inviteClaims.Email, Password: signUpInput.Password}
+	account := models.Account{Email: inviteClaims.Email, Password: &signUpInput.Password}
 	if err = models.CreateAccount(&account); err != nil {
 		c.Error(err)
 		return
@@ -81,25 +81,37 @@ func (ac *AuthController) Login(c *gin.Context) {
 	}
 	var account models.Account
 	if err := models.DB.Where("email = ?", loginInput.Email).First(&account).Error; err != nil {
-		c.Error(errors.Unauthorized)
+		c.Error(errors.Unauthorized("メールアドレスが正しくありません"))
 		return
 	}
 	// FIXME: きれいに書きたい
-	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(loginInput.Password))
+	if account.Password == nil {
+		c.Error(errors.Unauthorized("ログイン方法が間違えています"))
+		return
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(*account.Password), []byte(loginInput.Password))
 	if err != nil {
-		fmt.Println("CompareHashAndPassword", err)
+		c.Error(errors.Unauthorized("パスワードを間違えています"))
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"account": account,
-		"token":   account.Jwt(),
+
+		"token": account.Jwt(),
 	})
 }
 
 func (ac AuthController) SlackAuth(c *gin.Context) {
 	res, _ := slack.GetOAuthV2Response(http.DefaultClient, os.Getenv("SLACK_CLIENT_ID"), os.Getenv("SLACK_SECRET_KEY"), c.Query("code"), os.Getenv("SLACK_REDIRECT_URI"))
-	slackApi := slack.New("VktMMP18wQdO2QwGWoM9It1R")
+	slackApi := slack.New(res.AccessToken)
 	userInfo, _ := slackApi.GetUserInfo(res.AuthedUser.ID)
-	// TODO: DBへの保存の処理を追加
-	fmt.Println(userInfo)
-	c.Redirect(http.StatusMovedPermanently, "http://localhost:3000/login")
+	account := models.Account{
+		Email:            userInfo.Profile.Email,
+		HandleName:       userInfo.Profile.DisplayName,
+		SlackAccessToken: &res.AccessToken,
+	}
+	if result := models.DB.FirstOrCreate(&account); result.Error != nil {
+		fmt.Println("error", result.Error.Error())
+	}
+	c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("http://localhost:3000/slack_auth?token=%s", account.Jwt()))
 }

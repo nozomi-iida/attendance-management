@@ -10,6 +10,7 @@ import { AuthenticatedRouter } from "config/router/AuthenticatedRouter";
 import { ConfigProvider } from "antd";
 import jaJp from "antd/lib/locale/ja_JP";
 import { ReactQueryDevtools } from "react-query/devtools";
+import { SlackAuthPage } from "pages/SlackAuthPage";
 
 const queryClient = new QueryClient();
 const App = () => (
@@ -32,6 +33,14 @@ const App = () => (
                 element={
                   <AuthenticatedRouter>
                     <LoginPage />
+                  </AuthenticatedRouter>
+                }
+              />
+              <Route
+                path={routes.slackAuth()}
+                element={
+                  <AuthenticatedRouter>
+                    <SlackAuthPage />
                   </AuthenticatedRouter>
                 }
               />

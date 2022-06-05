@@ -23,7 +23,7 @@ func AuthenticateAccount() gin.HandlerFunc {
 		token := c.GetHeader("Authorization")
 		if token == "" {
 			c.Abort()
-			c.Error(errors.Unauthorized)
+			c.Error(errors.Unauthorized())
 			return
 		}
 
@@ -39,10 +39,10 @@ func AuthenticateAccount() gin.HandlerFunc {
 		}
 		account := models.Account{ID: authClaims.ID}
 		models.DB.Find(&account)
-		if len(account.Email) == 0 {
+		if len(account.HandleName) == 0 {
 			c.Abort()
 			CurrentAccount = models.Account{}
-			c.Error(errors.Unauthorized)
+			c.Error(errors.Unauthorized())
 			return
 		}
 		CurrentAccount = account

@@ -10,10 +10,7 @@ import { notification } from "antd";
 import { deleteAttendance } from "api/attendance/deleteAttendance";
 import { createAttendance } from "api/attendance/createAttendance";
 import moment, { Moment } from "moment";
-import {
-  leaveAttendance,
-  LeaveAttendanceRequestBody,
-} from "api/attendance/leaveAttendance";
+import { leaveAttendance } from "api/attendance/leaveAttendance";
 import { breakAttendance } from "api/attendance/breakAttendance";
 
 export const useManagement = () => {
