@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { Attendance, mockAttendance } from "api/attendance";
 import {
   Button,
@@ -72,6 +72,10 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
   }, [data, selectedMonth]);
   const [form] = Form.useForm();
 
+  useEffect(() => {
+    form.resetFields();
+  }, [selectedAttendance]);
+
   const columns: ColumnProps<AttendanceTableDataItem>[] = [
     {
       title: "日付",
@@ -130,7 +134,9 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
           <Space>
             <Button
               type="primary"
-              onClick={() => setSelectedAttendance(entity)}
+              onClick={() => {
+                setSelectedAttendance(entity);
+              }}
             >
               編集
             </Button>
@@ -196,50 +202,54 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
         columns={columns}
       />
 
-        <Modal
-          title="勤怠を編集"
-          visible={!!selectedAttendance}
-          onCancel={() => {
-            console.log("reset")
-            form.resetFields()
-            setSelectedAttendance(undefined)
+      <Modal
+        title="勤怠を編集"
+        visible={!!selectedAttendance}
+        onCancel={() => {
+          setSelectedAttendance(undefined);
+        }}
+        onOk={() => {
+          form.submit();
+        }}
+      >
+        <Form
+          form={form}
+          initialValues={{
+            startedAt: moment(selectedAttendance?.startedAt),
+            endedAt: selectedAttendance?.endedAt
+              ? moment(selectedAttendance?.endedAt)
+              : undefined,
+            breakTime: selectedAttendance?.breakTime,
           }}
-          onOk={form.submit}
+          onFinish={(values) => {
+            if (selectedAttendance?.id) {
+              onUpdateAttendance(selectedAttendance.id, values);
+              setSelectedAttendance(undefined);
+            }
+          }}
         >
-          <Form
-            form={form}
-            initialValues={{
-              startedAt: moment(selectedAttendance?.startedAt),
-              endedAt: selectedAttendance?.endedAt
-                ? moment(selectedAttendance?.endedAt)
-                : undefined,
-              breakTime: selectedAttendance?.breakTime
-            }}
-            onFinish={(values) => {
-              console.log(values);
-            }}
+          <Form.Item
+            label="出勤時刻"
+            name="startedAt"
+            rules={[{ required: true, message: "出勤時刻の入力は必須です" }]}
           >
-            <Form.Item
-              label="出勤時刻"
-              name="startedAt"
-              rules={[{ required: true, message: "出勤時刻の入力は必須です" }]}
-            >
-              <DatePicker picker="time" />
-            </Form.Item>
-            <Form.Item label="退勤時刻" name="endedAt">
-              <DatePicker
-                picker="time"
-              />
-            </Form.Item>
-            {/* FIXME: https://github.com/ant-design/ant-design/issues/35639 */}
-            <Form.Item
-              label="休憩時間"
-              name="breakTime"
-            >
-              <InputNumber />
-            </Form.Item>
-          </Form>
-        </Modal>
+            <DatePicker
+              picker="time"
+              showNow={false}
+            />
+          </Form.Item>
+          <Form.Item label="退勤時刻" name="endedAt">
+            <DatePicker
+              format="YYYY-MM-DD HH:mm:ss"
+              showTime={{ defaultValue: moment("00:00:00", "HH:mm:ss") }}
+              showNow={false}
+            />
+          </Form.Item>
+          <Form.Item label="休憩時間" name="breakTime">
+            <InputNumber />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

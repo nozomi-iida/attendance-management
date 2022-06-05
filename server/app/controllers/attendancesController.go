@@ -75,12 +75,13 @@ func (ac *AttendanceController) UpdateAttendance(c *gin.Context) {
 		return
 	}
 	attendance.EndedAt = updateAttendanceInput.EndedAt
+	attendance.StartedAt = updateAttendanceInput.StartedAt.In(time.FixedZone("JST", 9*60*60))
 
 	if attendance.EndedAt != nil {
 		// ISO8601規格の時間しか受け取れない
 		EndedAtJST := updateAttendanceInput.EndedAt.In(time.FixedZone("JST", 9*60*60))
 		attendance.EndedAt = &EndedAtJST
-		attendance.WorkTime = int(attendance.EndedAt.Sub(updateAttendanceInput.StartedAt).Minutes())
+		attendance.WorkTime = int(attendance.EndedAt.Sub(attendance.StartedAt).Minutes()) - updateAttendanceInput.BreakTime
 		if attendance.WorkTime < 0 {
 			c.Error(errors.NewError(http.StatusBadRequest, "業務終了時刻が業務開始時刻よりも早いです"))
 			return
@@ -88,7 +89,7 @@ func (ac *AttendanceController) UpdateAttendance(c *gin.Context) {
 	}
 
 	if err := models.DB.Model(&attendance).Where("id = ?", c.Param("id")).Updates(models.Attendance{
-		StartedAt: updateAttendanceInput.StartedAt,
+		StartedAt: attendance.StartedAt,
 		BreakTime: updateAttendanceInput.BreakTime,
 		EndedAt:   attendance.EndedAt,
 		WorkTime:  attendance.WorkTime,
@@ -138,13 +139,6 @@ func (ac *AttendanceController) BreakAttendance(c *gin.Context) {
 		return
 	}
 
-	//if err := models.DB.Model(&attendance).Where("id = ?", c.Param("id")).Updates(models.Attendance{
-	//	BreakStartTime: attendance.BreakStartTime,
-	//	BreakTime:      attendance.BreakTime,
-	//}).Error; err != nil {
-	//	c.Error(err)
-	//	return
-	//}
 	c.JSON(http.StatusOK, attendance)
 }
 
@@ -167,7 +161,7 @@ func (ac *AttendanceController) LeaveAttendance(c *gin.Context) {
 	// ISO8601規格の時間しか受け取らない
 	EndedAtJST := leaveWorkInput.EndedAt.In(time.FixedZone("JST", 9*60*60))
 	attendance.EndedAt = &EndedAtJST
-	attendance.WorkTime = int(leaveWorkInput.EndedAt.Sub(attendance.StartedAt).Minutes())
+	attendance.WorkTime = int(leaveWorkInput.EndedAt.Sub(attendance.StartedAt).Minutes()) - attendance.BreakTime
 
 	if err := models.DB.Model(&attendance).Where("id = ?", c.Param("id")).Updates(attendance).Error; err != nil {
 		c.Error(err)
