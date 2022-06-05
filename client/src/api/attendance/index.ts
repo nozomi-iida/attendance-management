@@ -4,7 +4,7 @@ export type Attendance = {
   workTime: number;
   breakTime: number;
   startedAt: string;
-  endedAt: string | null;
+  endedAt?: string | null;
 };
 
 export const mockAttendance = (

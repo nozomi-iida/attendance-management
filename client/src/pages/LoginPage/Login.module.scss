@@ -1,0 +1,12 @@
+@import "src/assets/styles/module";
+
+.spaceBox {
+  width: 100%;
+
+  .slackButton {
+    display: block;
+    img {
+      width: 100%;
+    }
+  }
+}

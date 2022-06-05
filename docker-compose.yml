@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   client:
@@ -16,8 +16,9 @@ services:
       - server
   server:
     build:
-      context: .
-      dockerfile: docker/go/Dockerfile
+      context: ./server
+      dockerfile: Dockerfile
+      target: builder
     ports:
       - 8080:8080
     tty: true

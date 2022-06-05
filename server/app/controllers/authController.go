@@ -6,9 +6,11 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/nozomi-iida/attendance-management/app/models"
 	"github.com/nozomi-iida/attendance-management/lib/errors"
+	"github.com/slack-go/slack"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
+	"os"
 )
 
 type AuthController struct{}
@@ -91,4 +93,13 @@ func (ac *AuthController) Login(c *gin.Context) {
 		"account": account,
 		"token":   account.Jwt(),
 	})
+}
+
+func (ac AuthController) SlackAuth(c *gin.Context) {
+	res, _ := slack.GetOAuthV2Response(http.DefaultClient, os.Getenv("SLACK_CLIENT_ID"), os.Getenv("SLACK_SECRET_KEY"), c.Query("code"), os.Getenv("SLACK_REDIRECT_URI"))
+	slackApi := slack.New("VktMMP18wQdO2QwGWoM9It1R")
+	userInfo, _ := slackApi.GetUserInfo(res.AuthedUser.ID)
+	// TODO: DBへの保存の処理を追加
+	fmt.Println(userInfo)
+	c.Redirect(http.StatusMovedPermanently, "http://localhost:3000/login")
 }

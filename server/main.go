@@ -15,5 +15,9 @@ func main() {
 	}
 	models.ConnectDatabase(os.Getenv("DATABASE_NAME"))
 	r := config.SetupRouter()
-	r.Run(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	r.Run(":" + port)
 }
