@@ -61,7 +61,9 @@ func TestSignUp(t *testing.T) {
 }
 
 func TestLogin(t *testing.T) {
-	account := models.Account{Email: "test@test.com", Password: "password", HandleName: "test"}
+	email := "test@test.com"
+	password := "test"
+	account := models.Account{Email: &email, Password: &password, HandleName: "test"}
 	models.CreateAccount(&account)
 
 	t.Run("success", func(t *testing.T) {

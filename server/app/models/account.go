@@ -24,7 +24,7 @@ type Account struct {
 	UpdatedAt        time.Time      `json:"updatedAt"`
 	DeletedAt        gorm.DeletedAt `json:"deletedAt" gorm:"index"`
 	HandleName       string         `json:"handleName"`
-	Email            string         `json:"email" gorm:"not nul; unique"`
+	Email            *string        `json:"email" gorm:"unique"`
 	Password         *string        `json:"password"`
 	SlackAccessToken *string        `json:"slackAccessToken"`
 	Role             AccountRoll    `json:"role" gorm:"not null; default:general"`
@@ -32,7 +32,7 @@ type Account struct {
 }
 
 func CreateAccount(account *Account) error {
-	handleName := strings.Split(account.Email, "@")[0]
+	handleName := strings.Split(*account.Email, "@")[0]
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*account.Password), bcrypt.DefaultCost)
 	hashedPasswordString := string(hashedPassword)
 	if err != nil {
@@ -51,7 +51,7 @@ func CheckAccountExist(email string) bool {
 	var accounts []Account
 	DB.Find(&accounts)
 	for _, account := range accounts {
-		if account.Email == email {
+		if *account.Email == email {
 			return true
 		}
 	}

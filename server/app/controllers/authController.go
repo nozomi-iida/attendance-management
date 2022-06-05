@@ -51,7 +51,7 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 		c.Error(errors.DuplicateEmailError)
 		return
 	}
-	account := models.Account{Email: inviteClaims.Email, Password: &signUpInput.Password}
+	account := models.Account{Email: &inviteClaims.Email, Password: &signUpInput.Password}
 	if err = models.CreateAccount(&account); err != nil {
 		c.Error(err)
 		return
@@ -105,13 +105,15 @@ func (ac AuthController) SlackAuth(c *gin.Context) {
 	res, _ := slack.GetOAuthV2Response(http.DefaultClient, os.Getenv("SLACK_CLIENT_ID"), os.Getenv("SLACK_SECRET_KEY"), c.Query("code"), os.Getenv("SLACK_REDIRECT_URI"))
 	slackApi := slack.New(res.AccessToken)
 	userInfo, _ := slackApi.GetUserInfo(res.AuthedUser.ID)
+
 	account := models.Account{
-		Email:            userInfo.Profile.Email,
 		HandleName:       userInfo.Profile.DisplayName,
 		SlackAccessToken: &res.AccessToken,
 	}
-	if result := models.DB.FirstOrCreate(&account); result.Error != nil {
-		fmt.Println("error", result.Error.Error())
+
+	if result := models.DB.Where(models.Account{HandleName: account.HandleName}).FirstOrCreate(&account); result.Error != nil {
+		fmt.Println("Error", result.Error.Error())
 	}
+
 	c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("http://localhost:3000/slack_auth?token=%s", account.Jwt()))
 }
