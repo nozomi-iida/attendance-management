@@ -17,6 +17,8 @@ import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
 import { UpdateAttendanceRequestBody } from "api/attendance/updateAttendance";
 import { ColumnProps } from "antd/es/table";
 import moment, { Moment } from "moment";
+import { CSVLink } from "react-csv";
+import { CloudDownloadOutlined } from "@ant-design/icons";
 import styles from "./AttendanceTable.module.scss";
 
 type AttendanceTableProps = {
@@ -44,7 +46,6 @@ const getAllDaysInMonth = (date: Moment) => {
   );
 };
 
-// TODO: 間違えて退勤を押してしまった場合の導線考えてない
 export const AttendanceTable: FC<AttendanceTableProps> = ({
   data = [mockAttendance()],
   selectedMonth,
@@ -152,6 +153,31 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
         ),
     },
   ];
+  const headers = [
+    {
+      label: "年月日",
+      key: "date",
+    },
+    { label: "出勤時間", key: "startedAt" },
+    { label: "退勤時間", key: "endedAt" },
+    { label: "休憩時間", key: "breakTime" },
+    { label: "労働時間", key: "workTime" },
+  ];
+  const csvData = useMemo(() => {
+    let totalWorkTime = 0
+    const attendanceData = data?.map(el => {
+      totalWorkTime += el.workTime
+      return {
+        date: moment(el.startedAt).format("YYYY-MM-DD"),
+        startedAt: moment(el.startedAt).format("YYYY-MM-DD"),
+        endedAt: el.endedAt ? moment(el.endedAt).format("YYYY-MM-DD") : "",
+        breakTime: numberToTime(el.breakTime),
+        workTime: numberToTime(el.workTime),
+      }
+    })
+    return [...attendanceData, {date: "合計時間", workTime: numberToTime(totalWorkTime)}]
+  }, [data])
+
   return (
     <div className={styles.flexBox}>
       <Row justify="space-between" className={styles.searchBox}>
@@ -195,6 +221,11 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
           )}
         </Space>
       </Row>
+      <div>
+        <CSVLink filename={`${selectedMonth.format("MM")}月の勤怠表`} data={csvData} headers={headers}>
+          <Button icon={<CloudDownloadOutlined />}>ダウンロード</Button>
+        </CSVLink>
+      </div>
       <Table
         rowKey="date"
         pagination={false}
@@ -233,10 +264,7 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
             name="startedAt"
             rules={[{ required: true, message: "出勤時刻の入力は必須です" }]}
           >
-            <DatePicker
-              picker="time"
-              showNow={false}
-            />
+            <DatePicker picker="time" showNow={false} />
           </Form.Item>
           <Form.Item label="退勤時刻" name="endedAt">
             <DatePicker

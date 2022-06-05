@@ -43,6 +43,7 @@
     "axios": "^0.27.2",
     "moment": "^2.29.3",
     "react": "^18.1.0",
+    "react-csv": "^2.2.2",
     "react-dom": "^18.1.0",
     "react-query": "^3.38.1",
     "react-router-dom": "^6.3.0",
@@ -52,6 +53,7 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "@types/react-csv": "^1.1.2",
     "@typescript-eslint/eslint-plugin": "^5.22.0",
     "@typescript-eslint/parser": "^5.22.0",
     "eslint": "^8.14.0",
