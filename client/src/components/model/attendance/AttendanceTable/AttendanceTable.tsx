@@ -47,7 +47,7 @@ const getAllDaysInMonth = (date: Moment) => {
 };
 
 export const AttendanceTable: FC<AttendanceTableProps> = ({
-  data = [mockAttendance()],
+  data,
   selectedMonth,
   onAttendance,
   onChangeMonth,
@@ -176,7 +176,7 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
       };
     });
     return [
-      ...attendanceData,
+      ...(attendanceData ?? []),
       { date: "合計時間", workTime: numberToTime(totalWorkTime) },
     ];
   }, [data]);

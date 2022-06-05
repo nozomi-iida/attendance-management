@@ -3,4 +3,5 @@ export const routes = {
   login: () => "/login",
   slackAuth: () => "/slack_auth",
   managements: () => "/",
+  accountManagement: () => "/account_management",
 };

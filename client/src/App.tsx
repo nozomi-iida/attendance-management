@@ -11,6 +11,7 @@ import { ConfigProvider } from "antd";
 import jaJp from "antd/lib/locale/ja_JP";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { SlackAuthPage } from "pages/SlackAuthPage";
+import { AccountManagementPage } from "pages/AccountManagementPage";
 
 const queryClient = new QueryClient();
 const App = () => (
@@ -49,6 +50,14 @@ const App = () => (
                 element={
                   <UnauthenticatedRouter>
                     <ManagementPage />
+                  </UnauthenticatedRouter>
+                }
+              />
+              <Route
+                path={routes.accountManagement()}
+                element={
+                  <UnauthenticatedRouter>
+                    <AccountManagementPage />
                   </UnauthenticatedRouter>
                 }
               />

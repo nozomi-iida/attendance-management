@@ -1,10 +1,19 @@
 import ProLayout, { MenuDataItem } from "@ant-design/pro-layout";
-import { FC, ReactNode, useMemo } from "react";
+import {
+  FC,
+  JSXElementConstructor,
+  ReactElement,
+  ReactFragment,
+  ReactNode,
+  ReactPortal,
+  useMemo,
+} from "react";
 import Logo from "assets/images/logo.png";
-import { ClockCircleOutlined } from "@ant-design/icons";
+import { ClockCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { routes } from "constants/routes";
 import { useCurrentAccount } from "hooks/useCurrentAccount/useCurrentAccount";
-import { Button, Popover, Typography } from "antd";
+import { Button, Layout, Menu, Popover } from "antd";
+import { Link, To } from "react-router-dom";
 
 type PageLayoutProps = {
   children: ReactNode;
@@ -15,6 +24,11 @@ const menu: MenuDataItem[] = [
     path: routes.managements(),
     name: "勤怠管理",
     icon: <ClockCircleOutlined />,
+  },
+  {
+    path: routes.accountManagement(),
+    name: "社員の勤怠状況",
+    icon: <UserOutlined />,
   },
 ];
 
@@ -45,6 +59,10 @@ export const PageLayout: FC<PageLayoutProps> = ({ children }) => {
       logo={Logo}
       rightContentRender={() => rightContentRender}
       fixSiderbar
+      // eslint-disable-next-line react/no-unstable-nested-components
+      menuItemRender={(item: MenuDataItem, defaultDom: ReactNode) => (
+        <Link to={item.path ?? ""}>{defaultDom}</Link>
+      )}
     >
       {children}
     </ProLayout>
