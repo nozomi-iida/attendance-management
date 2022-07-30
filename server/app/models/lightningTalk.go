@@ -12,7 +12,7 @@ type LightningTalk struct {
 	DeletedAt   gorm.DeletedAt `json:"deletedAt,omitempty" gorm:"index"`
 	TalkDay     time.Time      `json:"talkDay"`
 	Title       string         `json:"title"`
-	Description string         `json:"description"`
+	Description *string        `json:"description"`
 	AccountId   uint           `json:"accountId"`
 	Author      *Account       `json:"auth,omitempty" gorm:"constraint:OnDelete:SET NULL;foreignKey:AccountId"`
 }
