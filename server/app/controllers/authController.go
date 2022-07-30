@@ -94,10 +94,10 @@ func (ac *AuthController) Login(c *gin.Context) {
 		c.Error(errors.Unauthorized("パスワードを間違えています"))
 		return
 	}
+	fmt.Println("Account", *account.Email)
 	c.JSON(http.StatusOK, gin.H{
 		"account": account,
-
-		"token": account.Jwt(),
+		"token":   account.Jwt(),
 	})
 }
 

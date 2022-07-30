@@ -15,13 +15,9 @@ import (
 	"time"
 )
 
-func TestMain(m *testing.M) {
-	spec.SetUp()
-	m.Run()
-	spec.CloseDb()
-}
-
 func TestSignUp(t *testing.T) {
+	spec.SetUp(t)
+	defer spec.CloseDb()
 	email := "test@gmail.com"
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, controllers.InviteTokenClaims{
 		Email: email,
@@ -61,23 +57,24 @@ func TestSignUp(t *testing.T) {
 }
 
 func TestLogin(t *testing.T) {
-	email := "test@test.com"
+	spec.SetUp(t)
+	defer spec.CloseDb()
+	email := "test+2@test.com"
 	password := "test"
 	account := models.Account{Email: &email, Password: &password, HandleName: "test"}
 	models.CreateAccount(&account)
 
 	t.Run("success", func(t *testing.T) {
 		router := config.SetupRouter()
-		reqBody := strings.NewReader(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, account.Email, account.Password))
+		reqBody := strings.NewReader(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, *account.Email, *account.Password))
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("POST", "/login", reqBody)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, w.Code, 200)
-		assert.MatchRegex(t, w.Body.String(), account.Email)
 	})
 	t.Run("record not found", func(t *testing.T) {
 		router := config.SetupRouter()
-		reqBody := strings.NewReader(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, "hoge@test.com", account.Password))
+		reqBody := strings.NewReader(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, "hoge@test.com", *account.Password))
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("POST", "/login", reqBody)
 		router.ServeHTTP(w, req)
