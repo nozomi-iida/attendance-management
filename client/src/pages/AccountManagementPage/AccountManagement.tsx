@@ -6,7 +6,7 @@ import { mockAccount } from "api/account";
 export const AccountManagement: FC = () => {
   return (
     <PageContainer>
-      <AccountTable data={[mockAccount({currentAttendance: undefined})]} />
+      <AccountTable data={[mockAccount({ currentAttendance: undefined })]} />
     </PageContainer>
   );
 };

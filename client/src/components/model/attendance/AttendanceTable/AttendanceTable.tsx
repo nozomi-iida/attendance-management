@@ -1,5 +1,5 @@
 import { FC, useEffect, useMemo, useState } from "react";
-import { Attendance, mockAttendance } from "api/attendance";
+import { Attendance } from "api/attendance";
 import {
   Button,
   DatePicker,
@@ -75,6 +75,8 @@ export const AttendanceTable: FC<AttendanceTableProps> = ({
 
   useEffect(() => {
     form.resetFields();
+
+    // eslint-disable-next-line
   }, [selectedAttendance]);
 
   const columns: ColumnProps<AttendanceTableDataItem>[] = [

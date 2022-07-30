@@ -45,4 +45,23 @@ describe("PageLayout", () => {
     userEvent.click(screen.getByText("ログアウト"));
     await waitFor(() => expect(history.location.pathname).toBe(routes.login()));
   });
+  it("LTアドベントカレンダーをクリックしたらカレンダーページに行く", async () => {
+    const account = mockAccount();
+    const history = createMemoryHistory();
+    render(
+      <Router location={history.location} navigator={history}>
+        <CurrentAccountContext.Provider
+          value={{ account, setAccount: jest.fn }}
+        >
+          <PageLayout>
+            <div />
+          </PageLayout>
+        </CurrentAccountContext.Provider>
+      </Router>
+    );
+    userEvent.click(screen.getByText("LTアドベントカレンダー"));
+    await waitFor(() =>
+      expect(history.location.pathname).toBe(routes.lightningTalks())
+    );
+  });
 });
