@@ -21,9 +21,11 @@ func SetupRouter() *gin.Engine {
 	accountController := controllers.NewAccountController()
 	authController := controllers.NewAuthController()
 	attendanceController := controllers.NewAttendanceController()
+	lightningTalk := controllers.NewLightningTalkController()
+
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "healthy!!!",
+			"message": "healthy",
 		})
 	})
 	{
@@ -50,5 +52,16 @@ func SetupRouter() *gin.Engine {
 		attendancesRoutes.PATCH("/:id/leave", attendanceController.LeaveAttendance)
 		attendancesRoutes.DELETE("/:id", attendanceController.DeleteAttendance)
 	}
+
+	lightningTalkRoutes := r.Group("/lightning_talks")
+	{
+		lightningTalkRoutes.Use(middleware.AuthenticateAccount())
+		lightningTalkRoutes.GET("", lightningTalk.IndexLightningTalk)
+		lightningTalkRoutes.POST("", lightningTalk.CreateLightningTalk)
+		lightningTalkRoutes.GET("/:id", lightningTalk.GetLightningTalk)
+		lightningTalkRoutes.PATCH("/:id", lightningTalk.PatchLightningTalk)
+		lightningTalkRoutes.DELETE("/:id", lightningTalk.DeleteLightningTalk)
+	}
+	r.GET("accounts/:accountId/lightning_talks", lightningTalk.IndexMyLightningTalk)
 	return r
 }
