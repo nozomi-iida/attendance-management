@@ -90,7 +90,7 @@ func TestUpdateAttendance(t *testing.T) {
 	defer spec.CloseDb()
 	account := factories.MockAccount()
 	models.DB.Create(&account)
-	var router = config.SetupRouter()
+	router := config.SetupRouter()
 
 	t.Run("update attendance", func(t *testing.T) {
 		attendance := models.Attendance{Account: account}

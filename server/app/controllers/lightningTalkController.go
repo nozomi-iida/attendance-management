@@ -63,13 +63,65 @@ func (lt *LightningTalkController) CreateLightningTalk(c *gin.Context) {
 }
 
 func (lt *LightningTalkController) GetLightningTalk(c *gin.Context) {
+	var lightningTalk models.LightningTalk
+	if err := models.DB.Where("id = ?", c.Param("id")).First(&lightningTalk).Error; err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, lightningTalk)
+}
 
+type PatchLightningTalkInput struct {
+	Title       string    `json:"title" binding:"required"`
+	TalkDay     time.Time `json:"talkDay" binding:"required"`
+	Description *string   `json:"description"`
 }
 
 func (lt *LightningTalkController) PatchLightningTalk(c *gin.Context) {
+	account := middleware.CurrentAccount
+	var patchLightningTalkInput PatchLightningTalkInput
 
+	if err := c.ShouldBindJSON(&patchLightningTalkInput); err != nil {
+		c.Error(errors.BadRequest(err))
+		return
+	}
+	var lightningTalk models.LightningTalk
+
+	if err := models.DB.Where("id = ?", c.Param("id")).First(&lightningTalk).Error; err != nil {
+		c.Error(err)
+		return
+	}
+	if lightningTalk.AccountId != account.ID {
+		c.Error(errors.NewError(http.StatusBadRequest, "作成者と更新者が違います"))
+		return
+	}
+	lightningTalk.Title = patchLightningTalkInput.Title
+	lightningTalk.TalkDay = patchLightningTalkInput.TalkDay
+	lightningTalk.Description = patchLightningTalkInput.Description
+
+	if err := models.DB.Model(&lightningTalk).Where("id = ?", c.Param("id")).Updates(lightningTalk).Error; err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, lightningTalk)
 }
 
 func (lt *LightningTalkController) DeleteLightningTalk(c *gin.Context) {
+	account := middleware.CurrentAccount
+	var lightningTalk models.LightningTalk
 
+	if err := models.DB.Where("id = ?", c.Param("id")).First(&lightningTalk).Error; err != nil {
+		c.Error(err)
+		return
+	}
+	if lightningTalk.AccountId != account.ID {
+		c.Error(errors.NewError(http.StatusBadRequest, "作成者と更新者が違います"))
+		return
+	}
+	if err := models.DB.Where("id = ?", c.Param("id")).Delete(&models.LightningTalk{}).Error; err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(http.StatusNoContent, gin.H{})
 }

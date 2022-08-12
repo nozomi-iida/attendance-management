@@ -21,5 +21,6 @@ func MockLightningTalk(lightningTalk ...MockLightningTalkFunc) *models.Lightning
 		el(args)
 	}
 
+	models.DB.Create(args)
 	return args
 }

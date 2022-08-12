@@ -24,18 +24,16 @@ func TestIndexLightningTalk(t *testing.T) {
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
 	models.DB.Create(&account)
-	mockLightningTalk := factories.MockLightningTalk()
-	models.DB.Create(&mockLightningTalk)
+	factories.MockLightningTalk()
 
 	var router = config.SetupRouter()
 
 	t.Run("get lightning talks", func(t *testing.T) {
 		testTime := time.Date(2020, 4, 15, 16, 48, 32, 12345, time.Local)
-		testLightningTalk := factories.MockLightningTalk(func(lightningTalk *models.LightningTalk) {
+		factories.MockLightningTalk(func(lightningTalk *models.LightningTalk) {
 			lightningTalk.TalkDay = testTime
 			lightningTalk.Author = account
 		})
-		models.DB.Create(&testLightningTalk)
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("GET", "/lightning_talks", nil)
 		query := req.URL.Query()
@@ -79,7 +77,6 @@ func TestCreateLightningTalk(t *testing.T) {
 	t.Run("create lightning talk", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		title := "testLT会"
-		fmt.Println("time.Format", time.Now().Format(time.RFC3339), "time.now", time.Now())
 		reqBody := strings.NewReader(fmt.Sprintf(`{"title": "%s", "talkDay": "%s"}`, title, time.Now().Format(time.RFC3339)))
 		req, _ := http.NewRequest("POST", "/lightning_talks", reqBody)
 		req.Header.Set("Authorization", fmt.Sprintf(`Bearer %s`, account.Jwt()))
@@ -89,36 +86,96 @@ func TestCreateLightningTalk(t *testing.T) {
 	})
 }
 
-func TestGet(t *testing.T) {
+func TestGetLightningTalk(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
 	models.DB.Create(&account)
+	title := "testLT会"
+	lightningTalk := factories.MockLightningTalk(func(lightningTalk *models.LightningTalk) {
+		lightningTalk.Title = title
+		lightningTalk.Author = account
+	})
+	router := config.SetupRouter()
 
 	t.Run("get lightning talk", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", fmt.Sprintf("/lightning_talks/%d", lightningTalk.ID), nil)
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.Jwt()))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 200)
+		assert.MatchRegex(t, w.Body.String(), title)
 	})
 }
 
-func TestPatch(t *testing.T) {
+func TestPatchLightningTalk(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
 	models.DB.Create(&account)
+	router := config.SetupRouter()
+	title := "Update Title"
 
 	t.Run("patch lightning talk", func(t *testing.T) {
+		lightningTalk := factories.MockLightningTalk(func(lightningTalk *models.LightningTalk) {
+			lightningTalk.Author = account
+		})
+		w := httptest.NewRecorder()
+		reqBody := strings.NewReader(fmt.Sprintf(`{"title": "%s", "talkDay": "%s"}`, title, time.Now().Format(time.RFC3339)))
+		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/lightning_talks/%d", lightningTalk.ID), reqBody)
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.Jwt()))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 200)
+		assert.MatchRegex(t, w.Body.String(), title)
 	})
 	t.Run("error: not patch lightning talk when other author try to patch", func(t *testing.T) {
+		email := "light@test.com"
+		otherAccount := factories.MockAccount(func(account *models.Account) {
+			account.Email = &email
+		})
+		models.DB.Create(&otherAccount)
+		lightningTalk := factories.MockLightningTalk(func(lightningTalk *models.LightningTalk) {
+			lightningTalk.Author = otherAccount
+		})
+		w := httptest.NewRecorder()
+		reqBody := strings.NewReader(fmt.Sprintf(`{"title": "%s", "talkDay": "%s"}`, title, time.Now().Format(time.RFC3339)))
+		req, _ := http.NewRequest("PATCH", fmt.Sprintf("/lightning_talks/%d", lightningTalk.ID), reqBody)
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.Jwt()))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 400)
 	})
 }
 
-func TestDelete(t *testing.T) {
+func TestDeleteLightningTalk(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
 	models.DB.Create(&account)
+	router := config.SetupRouter()
 
 	t.Run("delete lightning talk", func(t *testing.T) {
+		lightningTalk := factories.MockLightningTalk(func(lightningTalk *models.LightningTalk) {
+			lightningTalk.Author = account
+		})
+		req, _ := http.NewRequest("DELETE", fmt.Sprintf("/lightning_talks/%d", lightningTalk.ID), nil)
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.Jwt()))
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 204)
 	})
 	t.Run("error: not delete lightning talk when other author try to delete", func(t *testing.T) {
+		email := "light@test.com"
+		otherAccount := factories.MockAccount(func(account *models.Account) {
+			account.Email = &email
+		})
+		models.DB.Create(&otherAccount)
+		lightningTalk := factories.MockLightningTalk(func(lightningTalk *models.LightningTalk) {
+			lightningTalk.Author = otherAccount
+		})
+		req, _ := http.NewRequest("DELETE", fmt.Sprintf("/lightning_talks/%d", lightningTalk.ID), nil)
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", account.Jwt()))
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		assert.Equal(t, w.Code, 400)
 	})
 }
