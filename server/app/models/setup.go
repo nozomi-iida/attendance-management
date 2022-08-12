@@ -25,7 +25,7 @@ func ConnectDatabase(dbname string) {
 		panic("Failed to connect to database!")
 	}
 
-	err = database.AutoMigrate(&Account{}, &Attendance{})
+	err = database.AutoMigrate(&Account{}, &Attendance{}, &LightningTalk{})
 	if err != nil {
 		panic("Failed to connect to migrate!")
 	}
