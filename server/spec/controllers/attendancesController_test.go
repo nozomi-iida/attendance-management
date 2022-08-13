@@ -24,7 +24,6 @@ func TestIndexAttendance(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
-	models.DB.Create(&account)
 	models.DB.Create(&models.Attendance{Account: account})
 	models.DB.Create(&models.Attendance{Account: account})
 	models.DB.Create(&models.Attendance{Account: account})
@@ -58,7 +57,6 @@ func TestGetAttendance(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
-	models.DB.Create(&account)
 	models.DB.Create(&models.Attendance{Account: account})
 	var router = config.SetupRouter()
 
@@ -75,7 +73,6 @@ func TestCreateAttendance(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
-	models.DB.Create(&account)
 	var router = config.SetupRouter()
 
 	w := httptest.NewRecorder()
@@ -89,8 +86,7 @@ func TestUpdateAttendance(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	account := factories.MockAccount()
-	models.DB.Create(&account)
-	var router = config.SetupRouter()
+	router := config.SetupRouter()
 
 	t.Run("update attendance", func(t *testing.T) {
 		attendance := models.Attendance{Account: account}
@@ -171,7 +167,6 @@ func TestBreakAttendance(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
-	models.DB.Create(&account)
 	var router = config.SetupRouter()
 
 	t.Run("start break", func(t *testing.T) {
@@ -209,7 +204,6 @@ func TestLeaveAttendance(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	account := factories.MockAccount()
-	models.DB.Create(account)
 	router := config.SetupRouter()
 	t.Run("leave work", func(t *testing.T) {
 		startedAt := time.Date(2014, 12, 20, 24, 0, 0, 0, time.UTC)
@@ -234,7 +228,6 @@ func TestDeleteAttendance(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
-	models.DB.Create(&account)
 	models.DB.Create(&models.Attendance{Account: account})
 	var router = config.SetupRouter()
 

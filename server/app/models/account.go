@@ -19,16 +19,17 @@ const (
 
 // TODO: メールのバリデーションをかける
 type Account struct {
-	ID               uint           `json:"id" gorm:"primaryKey"`
-	CreatedAt        time.Time      `json:"createdAt"`
-	UpdatedAt        time.Time      `json:"updatedAt"`
-	DeletedAt        gorm.DeletedAt `json:"deletedAt" gorm:"index"`
-	HandleName       string         `json:"handleName"`
-	Email            *string        `json:"email" gorm:"unique"`
-	Password         *string        `json:"password"`
-	SlackAccessToken *string        `json:"slackAccessToken"`
-	Role             AccountRoll    `json:"role" gorm:"not null; default:general"`
-	Attendances      []Attendance   `json:"attendances,omitempty" gorm:"constraint:OnDelete:SET NULL"`
+	ID               uint            `json:"id" gorm:"primaryKey"`
+	CreatedAt        time.Time       `json:"createdAt"`
+	UpdatedAt        time.Time       `json:"updatedAt"`
+	DeletedAt        gorm.DeletedAt  `json:"deletedAt" gorm:"index"`
+	HandleName       string          `json:"handleName"`
+	Email            *string         `json:"email" gorm:"unique"`
+	Password         *string         `json:"password"`
+	SlackAccessToken *string         `json:"slackAccessToken"`
+	Role             AccountRoll     `json:"role" gorm:"not null; default:general"`
+	Attendances      []Attendance    `json:"attendances,omitempty" gorm:"constraint:OnDelete:SET NULL"`
+	LightningTalks   []LightningTalk `json:"lightningTalk,omitempty" gorm:"constraint:OnDelete:SET NULL"`
 }
 
 func CreateAccount(account *Account) error {

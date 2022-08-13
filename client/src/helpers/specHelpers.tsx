@@ -18,12 +18,10 @@ type CustomWrapperProps = {
 
 const customWrapper = ({ account, children, history }: CustomWrapperProps) => {
   const queryClient = new QueryClient();
-  const spy = jest.fn((params) => {});
-
   return (
     <CurrentAccountContext.Provider
       // eslint-disable-next-line react/jsx-no-constructed-context-values
-      value={{ account, setAccount: spy }}
+      value={{ account, setAccount: jest.fn }}
     >
       <QueryClientProvider client={queryClient}>
         <Router location={history.location} navigator={history}>
@@ -41,17 +39,6 @@ export const customRender = (
   },
   options?: Omit<RenderOptions, "wrapper">
 ) => {
-  {
-    customValue.account &&
-      customValue.server.use(
-        rest.get(
-          `${ApiHost}/accounts/${customValue.account.id}`,
-          (req, res, ctx) => {
-            return res(ctx.json(customValue.account));
-          }
-        )
-      );
-  }
   return render(ui, {
     wrapper: ({ children }) =>
       customWrapper({

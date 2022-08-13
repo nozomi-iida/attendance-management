@@ -4,4 +4,5 @@ export const routes = {
   slackAuth: () => "/slack_auth",
   managements: () => "/",
   accountManagement: () => "/account_management",
+  lightningTalks: () => "/lightning_talks",
 };

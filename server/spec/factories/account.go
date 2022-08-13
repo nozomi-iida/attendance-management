@@ -1,14 +1,10 @@
 package factories
 
-import "github.com/nozomi-iida/attendance-management/app/models"
+import (
+	"github.com/nozomi-iida/attendance-management/app/models"
+)
 
 type MockAccountFunc func(*models.Account)
-
-func MockAccountEmaiiil(email string) MockAccountFunc {
-	return func(args *models.Account) {
-		args.Email = &email
-	}
-}
 
 func MockAccount(account ...MockAccountFunc) *models.Account {
 	email := "test@test.com"
@@ -22,5 +18,8 @@ func MockAccount(account ...MockAccountFunc) *models.Account {
 		el(args)
 	}
 
+	// CreateAccountにしたいが、エラーが出る
+	//err := models.CreateAccount(args)
+	models.DB.Create(args)
 	return args
 }
