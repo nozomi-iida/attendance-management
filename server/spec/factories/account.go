@@ -1,7 +1,6 @@
 package factories
 
 import (
-	"fmt"
 	"github.com/nozomi-iida/attendance-management/app/models"
 )
 
@@ -19,10 +18,8 @@ func MockAccount(account ...MockAccountFunc) *models.Account {
 		el(args)
 	}
 
-	err := models.CreateAccount(args)
-	if err != nil {
-		fmt.Println("アカウントの作成に失敗しました")
-		return args
-	}
+	// CreateAccountにしたいが、エラーが出る
+	//err := models.CreateAccount(args)
+	models.DB.Create(args)
 	return args
 }
