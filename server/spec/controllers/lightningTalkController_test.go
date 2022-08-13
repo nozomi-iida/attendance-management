@@ -23,7 +23,6 @@ func TestIndexLightningTalk(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
-	models.DB.Create(&account)
 	factories.MockLightningTalk()
 
 	var router = config.SetupRouter()
@@ -58,8 +57,7 @@ func TestIndexLightningTalk(t *testing.T) {
 func TestIndexMy(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
-	var account = factories.MockAccount()
-	models.DB.Create(&account)
+	factories.MockAccount()
 
 	t.Run("get my lightning talks", func(t *testing.T) {
 	})
@@ -71,7 +69,6 @@ func TestCreateLightningTalk(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
-	models.DB.Create(&account)
 	var router = config.SetupRouter()
 
 	t.Run("create lightning talk", func(t *testing.T) {
@@ -90,7 +87,6 @@ func TestGetLightningTalk(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
-	models.DB.Create(&account)
 	title := "testLT会"
 	lightningTalk := factories.MockLightningTalk(func(lightningTalk *models.LightningTalk) {
 		lightningTalk.Title = title
@@ -112,7 +108,6 @@ func TestPatchLightningTalk(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
-	models.DB.Create(&account)
 	router := config.SetupRouter()
 	title := "Update Title"
 
@@ -133,7 +128,6 @@ func TestPatchLightningTalk(t *testing.T) {
 		otherAccount := factories.MockAccount(func(account *models.Account) {
 			account.Email = &email
 		})
-		models.DB.Create(&otherAccount)
 		lightningTalk := factories.MockLightningTalk(func(lightningTalk *models.LightningTalk) {
 			lightningTalk.Author = otherAccount
 		})
@@ -150,7 +144,6 @@ func TestDeleteLightningTalk(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
-	models.DB.Create(&account)
 	router := config.SetupRouter()
 
 	t.Run("delete lightning talk", func(t *testing.T) {
@@ -168,7 +161,6 @@ func TestDeleteLightningTalk(t *testing.T) {
 		otherAccount := factories.MockAccount(func(account *models.Account) {
 			account.Email = &email
 		})
-		models.DB.Create(&otherAccount)
 		lightningTalk := factories.MockLightningTalk(func(lightningTalk *models.LightningTalk) {
 			lightningTalk.Author = otherAccount
 		})

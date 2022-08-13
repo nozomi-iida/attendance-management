@@ -18,11 +18,13 @@ import (
 )
 
 func TestInviteAccount(t *testing.T) {
-	var account = factories.MockAccount()
 	spec.SetUp(t)
-	models.DB.Create(&account)
 	defer spec.CloseDb()
 	router := config.SetupRouter()
+	email := "test@test.com"
+	var account = factories.MockAccount(func(account *models.Account) {
+		account.Email = &email
+	})
 
 	t.Run("success", func(t *testing.T) {
 		reqBody := strings.NewReader(`{"Emails": ["hoge@test.com"]}`)
@@ -47,7 +49,6 @@ func TestGetAccount(t *testing.T) {
 	spec.SetUp(t)
 	defer spec.CloseDb()
 	var account = factories.MockAccount()
-	models.DB.Create(&account)
 	models.DB.Create(&models.Attendance{Account: account, StartedAt: time.Now()})
 	router := config.SetupRouter()
 	w := httptest.NewRecorder()

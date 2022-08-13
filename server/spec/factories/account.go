@@ -1,6 +1,9 @@
 package factories
 
-import "github.com/nozomi-iida/attendance-management/app/models"
+import (
+	"fmt"
+	"github.com/nozomi-iida/attendance-management/app/models"
+)
 
 type MockAccountFunc func(*models.Account)
 
@@ -16,5 +19,10 @@ func MockAccount(account ...MockAccountFunc) *models.Account {
 		el(args)
 	}
 
+	err := models.CreateAccount(args)
+	if err != nil {
+		fmt.Println("アカウントの作成に失敗しました")
+		return args
+	}
 	return args
 }

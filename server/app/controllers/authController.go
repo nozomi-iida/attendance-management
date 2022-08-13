@@ -81,10 +81,12 @@ func (ac *AuthController) Login(c *gin.Context) {
 	}
 	var account models.Account
 	if err := models.DB.Where("email = ?", loginInput.Email).First(&account).Error; err != nil {
+		fmt.Println("メールアドレスが正しくありません")
 		c.Error(errors.Unauthorized("メールアドレスが正しくありません"))
 		return
 	}
 	// FIXME: きれいに書きたい
+	// slackでアカウント登録した場合passwordがないため
 	if account.Password == nil {
 		c.Error(errors.Unauthorized("ログイン方法が間違えています"))
 		return
@@ -94,7 +96,6 @@ func (ac *AuthController) Login(c *gin.Context) {
 		c.Error(errors.Unauthorized("パスワードを間違えています"))
 		return
 	}
-	fmt.Println("Account", *account.Email)
 	c.JSON(http.StatusOK, gin.H{
 		"account": account,
 		"token":   account.Jwt(),
